@@ -1070,7 +1070,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "radix"
+name = "radix-lib"
 version = "0.1.0"
 dependencies = [
  "game-loop",
@@ -1169,6 +1169,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f398075ce1e6a179b46f51bd88d0598b92b00d3551f1a2d4ac49e771b56ac354"
 dependencies = [
  "bytemuck",
+]
+
+[[package]]
+name = "sandbox"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "pretty_env_logger",
+ "radix-lib",
 ]
 
 [[package]]

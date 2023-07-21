@@ -1,6 +1,4 @@
-use log::info;
-
 fn main() {
     pretty_env_logger::init();
-    info!("Hello");
+    radix_lib::log();
 }
