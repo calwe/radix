@@ -1,4 +1,10 @@
+use radix_lib::app::App;
+
+// Entry point of the program
 fn main() {
     pretty_env_logger::init();
-    radix_lib::log();
+
+    App::new()
+        .title("Sandbox")
+        .run();
 }
