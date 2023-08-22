@@ -30,4 +30,12 @@ impl Map {
         }
         map
     }
+
+    pub fn set(&mut self, x: u32, y: u32, color: Color) {
+        self.data[(y * self.width + x) as usize] = color;
+    }
+
+    pub fn get(&self, x: u32, y: u32) -> Color {
+        self.data[(y * self.width + x) as usize]
+    }
 }

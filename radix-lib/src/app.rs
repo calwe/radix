@@ -4,7 +4,7 @@ use winit::{event_loop::EventLoop, event::{Event, WindowEvent}, dpi::LogicalSize
 
 use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map, camera::Camera};
 
-const W: u32 = 0xFF000000;
+const W: u32 = 0xFF0000FF;
 const A: u32 = 0xFFFFFFFF;
 const DEFAULT_MAP: [u32; 64] = [
     W, W, W, W, W, W, W, W,
@@ -59,7 +59,7 @@ impl App {
             .unwrap();
         self.renderer = Some(Renderer::new(&window, self.window.scale, 
             Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec()),
-            Camera::new(0.0, 0.0, -1.0, 0.0, 0.0, 0.66)
+            Camera::new(2.5, 2.5, -0.2, -0.8, 0.0, 0.66)
         ));
 
         // this is the core loop of the engine.
@@ -121,7 +121,7 @@ impl App {
         let renderer = self.renderer.as_mut().unwrap();
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
-        renderer.draw_vertical_line(Color::from_rgb_hex(0xb747d1), 30, 60, 50);
+        renderer.draw_frame();
 
         renderer.render();
     }

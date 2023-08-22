@@ -1,3 +1,4 @@
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Color {
     color: u32,
 }
@@ -39,5 +40,13 @@ impl Color {
     pub fn to_rgba_arr(&self) -> [u8; 4] {
         let (r, g, b, a) = self.to_rgba();
         [r, g, b, a]
+    }
+
+    pub fn darken(&self, value: f64) -> Color {
+        let (r, g, b, a) = self.to_rgba();
+        let r = (r as f64 * value) as u8;
+        let g = (g as f64 * value) as u8;
+        let b = (b as f64 * value) as u8;
+        Color::from_rgba(r, g, b, a)
     }
 }
