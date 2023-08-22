@@ -2,7 +2,20 @@ use log::{trace, info};
 use game_loop::game_loop;
 use winit::{event_loop::EventLoop, event::{Event, WindowEvent}, dpi::LogicalSize};
 
-use crate::{window::Window, renderer::Renderer, util::color::Color};
+use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map};
+
+const W: u32 = 0xFF000000;
+const A: u32 = 0xFFFFFFFF;
+const DEFAULT_MAP: [u32; 64] = [
+    W, W, W, W, W, W, W, W,
+    W, A, A, A, A, A, A, W,
+    W, A, W, W, W, A, A, W,
+    W, A, A, A, A, A, A, W,
+    W, A, A, A, A, A, A, W,
+    W, A, A, W, W, W, A, W,
+    W, A, A, A, A, A, A, W,
+    W, W, W, W, W, W, W, W,
+];
 
 /// The base struct for the engine. Uses the 'Builder Pattern' to be constructed
 pub struct App {
@@ -12,6 +25,7 @@ pub struct App {
     tps: u32,
     window: Window,
     renderer: Option<Renderer>,
+    map: Map,
 }
 
 /// A rust trait that specifies the initial state of the app
@@ -23,6 +37,7 @@ impl Default for App {
             tps: 60,
             window: Window::new(800, 600, 1),
             renderer: None,
+            map: Map::empty(0, 0),
         }
     }
 }
@@ -42,7 +57,7 @@ impl App {
             .with_min_inner_size(LogicalSize::new(self.window.width / self.window.scale, self.window.height / self.window.scale))
             .build(&event_loop)
             .unwrap();
-        self.renderer = Some(Renderer::new(&window, self.window.scale));
+        self.renderer = Some(Renderer::new(&window, self.window.scale, Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec())));
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.

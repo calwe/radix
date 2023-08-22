@@ -1,5 +1,3 @@
-use winit::{event_loop::{EventLoop, self}, dpi::LogicalSize};
-
 #[derive(Default, Clone)]
 pub struct Window {
     pub(crate) title: Option<String>,
