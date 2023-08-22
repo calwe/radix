@@ -1,5 +1,8 @@
-use log::trace;
+use log::{trace, info};
 use game_loop::game_loop;
+use winit::{event_loop::EventLoop, event::{Event, WindowEvent}, dpi::LogicalSize};
+
+use crate::{window::Window, renderer::Renderer, util::color::Color};
 
 /// The base struct for the engine. Uses the 'Builder Pattern' to be constructed
 pub struct App {
@@ -7,6 +10,8 @@ pub struct App {
     title: String,
     max_frame_time: f64,
     tps: u32,
+    window: Window,
+    renderer: Option<Renderer>,
 }
 
 /// A rust trait that specifies the initial state of the app
@@ -16,6 +21,8 @@ impl Default for App {
             title: "A Radix App".to_string(), 
             max_frame_time: 0.1,
             tps: 60,
+            window: Window::new(800, 600, 1),
+            renderer: None,
         }
     }
 }
@@ -27,17 +34,33 @@ impl App {
     }
 
     /// The final function called after defining the app.
-    pub fn run(&self) {
+    pub fn run(mut self) {
+        let event_loop = EventLoop::new();
+        let window = winit::window::WindowBuilder::new()
+            .with_title(self.window.title.as_ref().unwrap_or(&self.title)) 
+            .with_inner_size(LogicalSize::new(self.window.width, self.window.height))
+            .with_min_inner_size(LogicalSize::new(self.window.width / self.window.scale, self.window.height / self.window.scale))
+            .build(&event_loop)
+            .unwrap();
+        self.renderer = Some(Renderer::new(&window, self.window.scale));
+
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
         //      it *doesn't* specify how quick the game renders - rendering happens as quickly as possible.
         //   - the third argument is the maximum frame time. this stops the users app from falling behind,
         //      instead less updates are called per second, slowing the game down. this isn't ideal, but is
         //      more desirable than falling behind.
-        game_loop(self, self.tps, self.max_frame_time, |g| {
+        let tps = self.tps;
+        let max_frame_time = self.max_frame_time;
+        game_loop(event_loop, window, self, tps, max_frame_time, |g| {
             g.game.update();
         }, |g| {
             g.game.render();
+        }, |g, event| {
+            // handle shit
+            if !g.game.handle_event(event) { 
+                g.exit();
+            }
         });
     }
 
@@ -63,6 +86,12 @@ impl App {
         self
     }
 
+    /// Sets a custom window - and gives it the title of our app if not specified.
+    pub fn window(mut self, window: Window) -> Self {
+        self.window = window;
+        self
+    }
+
     // ---------------------------------------------------
     //  Private functions
     // ---------------------------------------------------
@@ -70,8 +99,28 @@ impl App {
         trace!("Update: '{}'", self.title);
     }
 
-    fn render(&self) {
+    fn render(&mut self) {
+        let renderer = self.renderer.as_mut().unwrap();
+        renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
+        renderer.draw_vertical_line(Color::from_rgb_hex(0xb747d1), 30, 60, 50);
+
+        renderer.render();
+    }
+
+    fn handle_event(&self, event: &Event<()>) -> bool {
+        match event {
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => {
+                    info!("Close requested, exiting...");
+                    return false;
+                },
+                _ => {},
+            },
+            _ => {},
+        }
+
+        true
     }
 }
 

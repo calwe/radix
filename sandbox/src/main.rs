@@ -1,4 +1,4 @@
-use radix_lib::app::App;
+use radix_lib::{app::App, window::Window};
 
 // Entry point of the program
 fn main() {
@@ -6,5 +6,6 @@ fn main() {
 
     App::new()
         .title("Sandbox")
+        .window(Window::with_title(1280, 720, 3, "Sandbox Window"))
         .run();
 }

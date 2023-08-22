@@ -406,6 +406,7 @@ checksum = "d96fac7dbca77aeb9f72968756770bdba2063a016166fa130d99232a8988bc36"
 dependencies = [
  "wasm-bindgen",
  "web-sys",
+ "winit",
 ]
 
 [[package]]
