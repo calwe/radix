@@ -1,16 +1,17 @@
 use pixels::{Pixels, SurfaceTexture};
 
-use crate::{util::color::Color, map::Map};
+use crate::{util::color::Color, map::Map, camera::Camera};
 
 pub struct Renderer {
     pixels: Pixels,
     width: u32,
     height: u32,
     map: Map,
+    camera: Camera,
 }
 
 impl Renderer {
-    pub fn new(window: &winit::window::Window, scale: u32, map: Map,) -> Self {
+    pub fn new(window: &winit::window::Window, scale: u32, map: Map, camera: Camera) -> Self {
         let pixels = {
             let window_size = window.inner_size();
             let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
@@ -22,11 +23,16 @@ impl Renderer {
             width: window.inner_size().width / scale,
             height: window.inner_size().height / scale,
             map,
+            camera,
         }
     }
 
     pub fn render(&mut self) {
         self.pixels.render().unwrap();
+    }
+
+    pub fn draw_frame(&mut self) {
+
     }
 
     pub fn clear(&mut self, color: Color) {

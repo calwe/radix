@@ -2,7 +2,7 @@ use log::{trace, info};
 use game_loop::game_loop;
 use winit::{event_loop::EventLoop, event::{Event, WindowEvent}, dpi::LogicalSize};
 
-use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map};
+use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map, camera::Camera};
 
 const W: u32 = 0xFF000000;
 const A: u32 = 0xFFFFFFFF;
@@ -57,7 +57,10 @@ impl App {
             .with_min_inner_size(LogicalSize::new(self.window.width / self.window.scale, self.window.height / self.window.scale))
             .build(&event_loop)
             .unwrap();
-        self.renderer = Some(Renderer::new(&window, self.window.scale, Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec())));
+        self.renderer = Some(Renderer::new(&window, self.window.scale, 
+            Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec()),
+            Camera::new(0.0, 0.0, -1.0, 0.0, 0.0, 0.66)
+        ));
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
