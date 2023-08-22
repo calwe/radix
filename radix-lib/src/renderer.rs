@@ -1,3 +1,5 @@
+use std::{rc::Rc, cell::RefCell};
+
 use pixels::{Pixels, SurfaceTexture};
 
 use crate::{util::color::Color, map::Map, camera::Camera};
@@ -7,11 +9,10 @@ pub struct Renderer {
     width: u32,
     height: u32,
     map: Map,
-    camera: Camera,
 }
 
 impl Renderer {
-    pub fn new(window: &winit::window::Window, scale: u32, map: Map, camera: Camera) -> Self {
+    pub fn new(window: &winit::window::Window, scale: u32, map: Map) -> Self {
         let pixels = {
             let window_size = window.inner_size();
             let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
@@ -23,7 +24,6 @@ impl Renderer {
             width: window.inner_size().width / scale,
             height: window.inner_size().height / scale,
             map,
-            camera,
         }
     }
 
@@ -53,7 +53,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw_frame(&mut self) {
+    pub fn draw_frame(&mut self, camera: &Camera) {
         // We draw the frame using a method based on DDA.
         // The method used is outlined at https://lodev.org/cgtutor/raycasting.html
         // let mut lines = Vec::new();
@@ -63,13 +63,13 @@ impl Renderer {
             let camera_x = (2 * x) as f64 / self.width as f64 - 1.0;
 
             // now we calculate the ray direction.
-            let ray_dir_x = self.camera.dir_x + self.camera.plane_x * camera_x;
-            let ray_dir_y = self.camera.dir_y + self.camera.plane_y * camera_x;
+            let ray_dir_x = camera.dir_x + camera.plane_x * camera_x;
+            let ray_dir_y = camera.dir_y + camera.plane_y * camera_x;
 
             // we also need to know which sqaure of the map we are in
             // this is done by truncating the camera's position.
-            let mut map_x = self.camera.pos_x as i32;
-            let mut map_y = self.camera.pos_y as i32;
+            let mut map_x = camera.pos_x as i32;
+            let mut map_y = camera.pos_y as i32;
 
             // next we need the distance the ray has to travel to go from one x or y side to the next.
             // this is done using the pythagorean theorem; however, this can be simplified, as we only
@@ -88,18 +88,18 @@ impl Renderer {
             // to calculate these values, we need to know which direction the ray is travelling in.
             if ray_dir_x < 0.0 {
                 step_x = -1;
-                side_dist_x = (self.camera.pos_x - map_x as f64) * delta_dist_x;
+                side_dist_x = (camera.pos_x - map_x as f64) * delta_dist_x;
             } else {
                 step_x = 1;
-                side_dist_x = (map_x as f64 + 1.0 - self.camera.pos_x) * delta_dist_x;
+                side_dist_x = (map_x as f64 + 1.0 - camera.pos_x) * delta_dist_x;
             }
 
             if ray_dir_y < 0.0 {
                 step_y = -1;
-                side_dist_y = (self.camera.pos_y - map_y as f64) * delta_dist_y;
+                side_dist_y = (camera.pos_y - map_y as f64) * delta_dist_y;
             } else {
                 step_y = 1;
-                side_dist_y = (map_y as f64 + 1.0 - self.camera.pos_y) * delta_dist_y;
+                side_dist_y = (map_y as f64 + 1.0 - camera.pos_y) * delta_dist_y;
             }
        
             // now that we have all the values we need, we can start the DDA loop.

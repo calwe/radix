@@ -25,7 +25,9 @@ pub struct App {
     tps: u32,
     window: Window,
     renderer: Option<Renderer>,
+    // TODO: move out of app, when we have a scene system
     map: Map,
+    camera: Camera,
 }
 
 /// A rust trait that specifies the initial state of the app
@@ -38,6 +40,7 @@ impl Default for App {
             window: Window::new(800, 600, 1),
             renderer: None,
             map: Map::empty(0, 0),
+            camera: Camera::new(2.5, 2.5, -0.2, -0.8, 0.0, 0.66)
         }
     }
 }
@@ -59,7 +62,6 @@ impl App {
             .unwrap();
         self.renderer = Some(Renderer::new(&window, self.window.scale, 
             Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec()),
-            Camera::new(2.5, 2.5, -0.2, -0.8, 0.0, 0.66)
         ));
 
         // this is the core loop of the engine.
@@ -121,7 +123,8 @@ impl App {
         let renderer = self.renderer.as_mut().unwrap();
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
-        renderer.draw_frame();
+        // DI
+        renderer.draw_frame(&self.camera);
 
         renderer.render();
     }
