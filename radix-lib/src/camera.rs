@@ -18,4 +18,19 @@ impl Camera {
             plane_y,
         }
     }
+
+    pub fn add_position(&mut self, x: f64, y: f64) {
+        self.pos_x += x * self.dir_x;
+        self.pos_y += y * self.dir_y;
+    }
+
+    /// Rotates the camera by the given angle in radians.
+    pub fn add_direction(&mut self, a: f64) {
+        let old_dir_x = self.dir_x;
+        self.dir_x = self.dir_x * a.cos() - self.dir_y * a.sin();
+        self.dir_y = old_dir_x * a.sin() + self.dir_y * a.cos();
+        let old_plane_x = self.plane_x;
+        self.plane_x = self.plane_x * a.cos() - self.plane_y * a.sin();
+        self.plane_y = old_plane_x * a.sin() + self.plane_y * a.cos();
+    }
 }

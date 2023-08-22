@@ -4,17 +4,18 @@ use winit::{event_loop::EventLoop, event::{Event, WindowEvent}, dpi::LogicalSize
 
 use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map, camera::Camera};
 
-const W: u32 = 0xFF0000FF;
+const R: u32 = 0xFF0000FF;
+const G: u32 = 0x00FF00FF;
 const A: u32 = 0xFFFFFFFF;
 const DEFAULT_MAP: [u32; 64] = [
-    W, W, W, W, W, W, W, W,
-    W, A, A, A, A, A, A, W,
-    W, A, W, W, W, A, A, W,
-    W, A, A, A, A, A, A, W,
-    W, A, A, A, A, A, A, W,
-    W, A, A, W, W, W, A, W,
-    W, A, A, A, A, A, A, W,
-    W, W, W, W, W, W, W, W,
+    R, R, R, R, R, R, R, R,
+    R, A, A, A, A, A, A, R,
+    R, A, G, A, A, A, A, R,
+    R, A, A, A, A, A, A, R,
+    R, A, A, A, A, A, A, R,
+    R, A, A, A, A, A, A, R,
+    R, A, A, A, A, A, A, R,
+    R, R, R, R, R, R, R, R,
 ];
 
 /// The base struct for the engine. Uses the 'Builder Pattern' to be constructed
@@ -40,7 +41,7 @@ impl Default for App {
             window: Window::new(800, 600, 1),
             renderer: None,
             map: Map::empty(0, 0),
-            camera: Camera::new(2.5, 2.5, -0.2, -0.8, 0.0, 0.66)
+            camera: Camera::new(4.5, 4.5, -1.0, 0.0, 0.0, 0.66)
         }
     }
 }
@@ -115,8 +116,9 @@ impl App {
     // ---------------------------------------------------
     //  Private functions
     // ---------------------------------------------------
-    fn update(&self) {
-        trace!("Update: '{}'", self.title);
+    fn update(&mut self) {
+        // self.camera.add_position(0.01, 0.01);
+        self.camera.add_direction(1f64.to_radians());
     }
 
     fn render(&mut self) {

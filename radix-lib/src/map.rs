@@ -36,6 +36,8 @@ impl Map {
     }
 
     pub fn get(&self, x: u32, y: u32) -> Color {
+        // TODO: clamp somewhere (not sure where) to prevent out of bounds access
+        //          when the camera is outside the map.
         self.data[(y * self.width + x) as usize]
     }
 }

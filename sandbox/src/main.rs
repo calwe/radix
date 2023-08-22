@@ -6,6 +6,6 @@ fn main() {
 
     App::new()
         .title("Sandbox")
-        .window(Window::with_title(1280, 720, 3, "Sandbox Window"))
+        .window(Window::with_title(1280, 720, 1, "Sandbox Window"))
         .run();
 }
