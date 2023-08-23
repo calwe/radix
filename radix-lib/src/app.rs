@@ -1,8 +1,9 @@
 use log::{trace, info};
 use game_loop::game_loop;
-use winit::{event_loop::EventLoop, event::{Event, WindowEvent}, dpi::LogicalSize};
+use winit::{event_loop::EventLoop, event::{Event, WindowEvent, VirtualKeyCode}, dpi::{LogicalSize, LogicalPosition}, window::CursorGrabMode};
+use winit_input_helper::WinitInputHelper;
 
-use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map, camera::Camera};
+use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map, camera::Camera, player::Player};
 
 const R: u32 = 0xFF0000FF;
 const G: u32 = 0x00FF00FF;
@@ -26,9 +27,10 @@ pub struct App {
     tps: u32,
     window: Window,
     renderer: Option<Renderer>,
+    input: WinitInputHelper,
     // TODO: move out of app, when we have a scene system
     map: Map,
-    camera: Camera,
+    player: Player,
 }
 
 /// A rust trait that specifies the initial state of the app
@@ -40,8 +42,9 @@ impl Default for App {
             tps: 60,
             window: Window::new(800, 600, 1),
             renderer: None,
+            input: WinitInputHelper::new(),
             map: Map::empty(0, 0),
-            camera: Camera::new(4.5, 4.5, -1.0, 0.0, 0.0, 0.66)
+            player: Player::new(Camera::new(4.5, 4.5, (1280.0 / 720.0) / 2.0), 4.5, 4.5, 0.05, 0.05),
         }
     }
 }
@@ -64,6 +67,7 @@ impl App {
         self.renderer = Some(Renderer::new(&window, self.window.scale, 
             Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec()),
         ));
+        self.player.camera = Camera::new(4.5, 4.5, self.window.width as f64 / self.window.height as f64);
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
@@ -75,12 +79,20 @@ impl App {
         let max_frame_time = self.max_frame_time;
         game_loop(event_loop, window, self, tps, max_frame_time, |g| {
             g.game.update();
+            
+            // lock cursor - winit currently doesn't support this on windows, so we have to use a hacky workaround.
+            let _ = g.window.set_cursor_position(LogicalPosition::new(g.game.window.width as f64 / 2.0, g.game.window.height as f64 / 2.0));
+            g.window.set_cursor_visible(false);
         }, |g| {
             g.game.render();
         }, |g, event| {
-            // handle shit
-            if !g.game.handle_event(event) { 
-                g.exit();
+            if g.game.input.update(event) {
+                // Close events
+                if g.game.input.key_pressed(VirtualKeyCode::Escape) || g.game.input.close_requested() || g.game.input.destroyed() {
+                    g.exit();
+                    return;
+                }
+
             }
         });
     }
@@ -118,7 +130,7 @@ impl App {
     // ---------------------------------------------------
     fn update(&mut self) {
         // self.camera.add_position(0.01, 0.01);
-        self.camera.add_direction(1f64.to_radians());
+        self.player.update(&self.input);
     }
 
     fn render(&mut self) {
@@ -126,7 +138,7 @@ impl App {
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        renderer.draw_frame(&self.camera);
+        renderer.draw_frame(&self.player.camera);
 
         renderer.render();
     }
