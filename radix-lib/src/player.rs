@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::camera::Camera;
+use crate::{camera::Camera, window::Window};
 
 #[derive(Serialize, Deserialize)]
 pub struct Player {
@@ -15,9 +15,9 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(camera: Camera, pos_x: f64, pos_y: f64, speed: f64, turn_speed: f64) -> Self {
+    pub fn new(window: &Window, pos_x: f64, pos_y: f64, speed: f64, turn_speed: f64) -> Self {
         Self {
-            camera,
+            camera: Camera::new(pos_x, pos_y, window.aspect_ratio()),
             pos_x,
             pos_y,
             dir: 0.0,

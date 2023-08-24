@@ -8,11 +8,10 @@ pub struct Renderer {
     pixels: Pixels,
     width: u32,
     height: u32,
-    map: Map,
 }
 
 impl Renderer {
-    pub fn new(window: &winit::window::Window, scale: u32, map: Map) -> Self {
+    pub fn new(window: &winit::window::Window, scale: u32) -> Self {
         let pixels = {
             let window_size = window.inner_size();
             let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
@@ -23,7 +22,6 @@ impl Renderer {
             pixels,
             width: window.inner_size().width / scale,
             height: window.inner_size().height / scale,
-            map,
         }
     }
 
@@ -53,7 +51,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw_frame(&mut self, camera: &Camera) {
+    pub fn draw_frame(&mut self, camera: &Camera, map: &Map) {
         // We draw the frame using a method based on DDA.
         // The method used is outlined at https://lodev.org/cgtutor/raycasting.html
         // let mut lines = Vec::new();
@@ -119,7 +117,7 @@ impl Renderer {
                 }
 
                 // check if the ray has hit a wall.
-                if self.map.get(map_x as u32, map_y as u32).to_hex() != 0xFFFFFFFF {
+                if map.get(map_x as u32, map_y as u32).to_hex() != 0xFFFFFFFF {
                     hit = true;
                 }
             }
@@ -135,7 +133,7 @@ impl Renderer {
             let line_height = (self.height as f64 / perp_wall_distance) as u32;
 
             // get the color of the wall hit, and darken it if it is a E/W wall.
-            let mut color = self.map.get(map_x as u32, map_y as u32);
+            let mut color = map.get(map_x as u32, map_y as u32);
             if side == 1 {
                 color = color.darken(0.5);
             }

@@ -24,4 +24,8 @@ impl Window {
             title: Some(title.to_string()),
         }
     }
+
+    pub fn aspect_ratio(&self) -> f64 {
+        self.width as f64 / self.height as f64
+    }
 }

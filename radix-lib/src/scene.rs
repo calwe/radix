@@ -10,7 +10,7 @@ const SAVE_PATH: &str = "scenes";
 pub struct Scene {
     name: String,
     pub(crate) player: Player,
-    map: Map,
+    pub(crate) map: Map,
 }
 
 impl Scene {

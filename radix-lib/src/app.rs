@@ -63,17 +63,7 @@ impl App {
             .with_min_inner_size(LogicalSize::new(self.window.width / self.window.scale, self.window.height / self.window.scale))
             .build(&event_loop)
             .unwrap();
-        self.renderer = Some(Renderer::new(&window, self.window.scale, 
-            Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec()),
-        ));
-        
-        // TEST SCENE
-        let map = Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec());
-        let camera = Camera::new(1.5, 1.5, self.window.width as f64 / self.window.height as f64);
-        let player = Player::new(camera, 1.5, 1.5, 0.1, 0.1);
-        let scene = Scene::new("test", player, map);
-        scene.save().unwrap();
-        self.scenes.push(scene);
+        self.renderer = Some(Renderer::new(&window, self.window.scale));
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
@@ -99,6 +89,13 @@ impl App {
                     return;
                 }
 
+                // TODO: add a better way to switch scenes (probs with scripting, when thats a thing)
+                if g.game.input.key_pressed(VirtualKeyCode::Space) {
+                    let current_scene = g.game.current_scene;
+                    let next_scene = (current_scene + 1) % g.game.scenes.len();
+                    info!("Switching from scene {} to scene {}", current_scene, next_scene);
+                    g.game.current_scene = next_scene;
+                }
             }
         });
     }
@@ -131,6 +128,12 @@ impl App {
         self
     }
 
+    /// Adds a scene to the app
+    pub fn add_scene(mut self, scene: Scene) -> Self {
+        self.scenes.push(scene);
+        self
+    }
+
     // ---------------------------------------------------
     //  Private functions
     // ---------------------------------------------------
@@ -147,7 +150,7 @@ impl App {
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        renderer.draw_frame(&current_scene.player.camera);
+        renderer.draw_frame(&current_scene.player.camera, &current_scene.map);
 
         renderer.render();
     }
