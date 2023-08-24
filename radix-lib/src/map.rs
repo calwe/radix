@@ -1,5 +1,8 @@
+use serde::{Deserialize, Serialize};
+
 use crate::util::color::Color;
 
+#[derive(Serialize, Deserialize)]
 pub struct Map {
     pub(crate) width: u32,
     pub(crate) height: u32,

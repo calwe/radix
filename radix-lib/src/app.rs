@@ -3,7 +3,7 @@ use game_loop::game_loop;
 use winit::{event_loop::EventLoop, event::{Event, WindowEvent, VirtualKeyCode}, dpi::{LogicalSize, LogicalPosition}, window::CursorGrabMode};
 use winit_input_helper::WinitInputHelper;
 
-use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map, camera::Camera, player::Player};
+use crate::{window::Window, renderer::Renderer, util::color::Color, map::Map, camera::Camera, player::Player, scene::Scene};
 
 const R: u32 = 0xFF0000FF;
 const G: u32 = 0x00FF00FF;
@@ -28,9 +28,8 @@ pub struct App {
     window: Window,
     renderer: Option<Renderer>,
     input: WinitInputHelper,
-    // TODO: move out of app, when we have a scene system
-    map: Map,
-    player: Player,
+    scenes: Vec<Scene>,
+    current_scene: usize,
 }
 
 /// A rust trait that specifies the initial state of the app
@@ -43,8 +42,8 @@ impl Default for App {
             window: Window::new(800, 600, 1),
             renderer: None,
             input: WinitInputHelper::new(),
-            map: Map::empty(0, 0),
-            player: Player::new(Camera::new(4.5, 4.5, (1280.0 / 720.0) / 2.0), 4.5, 4.5, 0.05, 0.05),
+            scenes: Vec::new(),
+            current_scene: 0,
         }
     }
 }
@@ -67,7 +66,14 @@ impl App {
         self.renderer = Some(Renderer::new(&window, self.window.scale, 
             Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec()),
         ));
-        self.player.camera = Camera::new(4.5, 4.5, self.window.width as f64 / self.window.height as f64);
+        
+        // TEST SCENE
+        let map = Map::with_raw_data(8, 8, DEFAULT_MAP.to_vec());
+        let camera = Camera::new(1.5, 1.5, self.window.width as f64 / self.window.height as f64);
+        let player = Player::new(camera, 1.5, 1.5, 0.1, 0.1);
+        let scene = Scene::new("test", player, map);
+        scene.save().unwrap();
+        self.scenes.push(scene);
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
@@ -130,15 +136,18 @@ impl App {
     // ---------------------------------------------------
     fn update(&mut self) {
         // self.camera.add_position(0.01, 0.01);
-        self.player.update(&self.input);
+        let current_scene = &mut self.scenes[self.current_scene];
+        current_scene.player.update(&self.input);
     }
 
     fn render(&mut self) {
         let renderer = self.renderer.as_mut().unwrap();
+        let current_scene = &mut self.scenes[self.current_scene];
+
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        renderer.draw_frame(&self.player.camera);
+        renderer.draw_frame(&current_scene.player.camera);
 
         renderer.render();
     }

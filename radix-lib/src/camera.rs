@@ -1,3 +1,6 @@
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize)]
 pub struct Camera {
     pub(crate) pos_x: f64,
     pub(crate) pos_y: f64,

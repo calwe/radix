@@ -10,5 +10,7 @@ game-loop = { version = "0.10.2", features = [ "winit" ] }
 log = "0.4.19"
 pixels = "0.13.0"
 pretty_env_logger = "0.5.0"
+serde = { version = "1.0.186", features = [ "derive" ] }
+serde_yaml = "0.9.25"
 winit = "0.28.6"
 winit_input_helper = "0.14.1"

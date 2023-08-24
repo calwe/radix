@@ -1,8 +1,10 @@
+use serde::{Deserialize, Serialize};
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
 use crate::camera::Camera;
 
+#[derive(Serialize, Deserialize)]
 pub struct Player {
     pub(crate) camera: Camera,
     pub(crate) pos_x: f64,
