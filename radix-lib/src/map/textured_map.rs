@@ -8,6 +8,8 @@ pub struct TexturedMap {
     pub(crate) width: u32,
     pub(crate) height: u32,
     pub(crate) data: Vec<Option<Rc<Texture>>>,
+    pub(crate) floor: Rc<Texture>,
+    pub(crate) ceiling: Rc<Texture>,
 }
 
 // TODO: Write deserlaize and serialize for TexturedMap
@@ -28,19 +30,13 @@ impl<'de> Deserialize<'de> for TexturedMap {
 }
 
 impl TexturedMap {
-    pub fn empty(width: u32, height: u32) -> Self {
-        Self {
-            width,
-            height,
-            data: Vec::new(),
-        }
-    }
-
-    pub fn with_data(width: u32, height: u32, data: Vec<Option<Rc<Texture>>>) -> Self {
+    pub fn with_data(width: u32, height: u32, data: Vec<Option<Rc<Texture>>>, floor: Rc<Texture>, ceiling: Rc<Texture>) -> Self {
         Self {
             width,
             height,
             data,
+            floor,
+            ceiling
         }
     }
 

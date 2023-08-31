@@ -153,6 +153,8 @@ impl Renderer {
 
     // TODO: lots of duplicated code from prev function - fix
     pub fn draw_frame_textured_map(&mut self, camera: &Camera, map: &TexturedMap) {
+        self.draw_floor_and_ceiling(camera, map);
+
         // We draw the frame using a method based on DDA.
         // The method used is outlined at https://lodev.org/cgtutor/raycasting.html
         // let mut lines = Vec::new();
@@ -260,6 +262,56 @@ impl Renderer {
                     color = color.darken(0.7);
                 }
                 self.draw_pixel(color, x, y as u32);
+            }
+        }
+    }
+
+    pub fn draw_floor_and_ceiling(&mut self, camera: &Camera, map: &TexturedMap) {
+        for y in 0..self.height {
+            // left ray
+            let ray_dir_x0 = camera.dir_x - camera.plane_x;
+            let ray_dir_y0 = camera.dir_y - camera.plane_y;
+            // right ray
+            let ray_dir_x1 = camera.dir_x + camera.plane_x;
+            let ray_dir_y1 = camera.dir_y + camera.plane_y;
+
+            // current y position compared to the center of the screen (the horizon)
+            let pos_y = y as f64 - self.height as f64 / 2.0;
+
+            // vertical position of the camera
+            let pos_z = 0.5 * self.height as f64;
+
+            // horizontal distance from the camera to the floor for the current row
+            let row_distance = pos_z / pos_y;
+
+            // calculate the real world step vector we have to add for each x (parallel to camera plane)
+            // adding step by step avoids multiplications with a weight in the inner loop
+            let step_x = row_distance * (ray_dir_x1 - ray_dir_x0) / self.width as f64;
+            let step_y = row_distance * (ray_dir_y1 - ray_dir_y0) / self.width as f64;
+
+            // real world coordinates of the leftmost column. This will be updated as we step to the right.
+            let mut floor_x = camera.pos_x + row_distance * ray_dir_x0;
+            let mut floor_y = camera.pos_y + row_distance * ray_dir_y0;
+
+            for x in 0..self.width {
+                // the cell coord is simply got from the integer parts of floor_x and floor_y
+                let cell_x = floor_x.floor() as u32;
+                let cell_y = floor_y.floor() as u32;
+
+                // get the texture coordinate from the fractional part
+                let mut tx = (map.floor.width() as f64 * (floor_x - floor_x.floor())) as u32 & (map.floor.width() - 1);
+                let mut ty = (map.floor.height() as f64 * (floor_y - floor_y.floor())) as u32 & (map.floor.height() - 1);
+
+                floor_x += step_x;
+                floor_y += step_y;
+
+                let mut color = Color::from_rgba_arr(map.floor.get(tx, ty));
+                color = color.darken(0.5);
+                self.draw_pixel(color, x, y);
+
+                let mut color = Color::from_rgba_arr(map.ceiling.get(tx, ty));
+                color = color.darken(0.5);
+                self.draw_pixel(color, x, self.height - y - 1);
             }
         }
     }
