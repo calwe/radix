@@ -1,5 +1,6 @@
 use std::{rc::Rc, cell::RefCell};
 
+use log::trace;
 use pixels::{Pixels, SurfaceTexture};
 
 use crate::{util::color::Color, map::{colored_map::ColoredMap, textured_map::TexturedMap}, camera::Camera};
@@ -254,9 +255,9 @@ impl Renderer {
             for y in start..end {
                 let tex_y = tex_pos as u32 & (texture.height() - 1);
                 tex_pos += step;
-                let color = Color::from_rgba_arr(texture.get(tex_x, tex_y));
+                let mut color = Color::from_rgba_arr(texture.get(tex_x, tex_y));
                 if side == 1 {
-                    color.darken(0.5);
+                    color = color.darken(0.7);
                 }
                 self.draw_pixel(color, x, y as u32);
             }
