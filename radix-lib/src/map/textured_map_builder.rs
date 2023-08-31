@@ -6,10 +6,11 @@ use super::{textured_map::TexturedMap, texture::Texture};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TexturedMapBuilder {
-    pub walls_path: String,
-    pub walls_texture_map: HashMap<u32, String>, // colour -> texture path
-    pub floor_path: String,
-    pub ceiling_path: String,
+    walls_path: String,
+    walls_texture_map: HashMap<u32, String>, // colour -> texture path
+    floor_path: String,
+    floor_texture_map: HashMap<u32, String>, // colour -> texture path
+    ceiling_path: String,
 }
 
 impl TexturedMapBuilder {
@@ -42,9 +43,26 @@ impl TexturedMapBuilder {
             }
         }
 
-        // now we can just load our floor and ceiling
-        let floor = Rc::new(Texture::new(&self.floor_path));
-        let ceiling = Rc::new(Texture::new(&self.ceiling_path));
+        // next we do the same for the floor
+        // TODO: abstract out, this is the same as above
+        let mut floor_textures = HashMap::new();
+        for (color, path) in &self.floor_texture_map {
+            floor_textures.insert(*color, Rc::new(Texture::new(path)));
+        }
+
+        let floor_texture = image::open(&self.floor_path).unwrap().into_rgba8();
+        let width = floor_texture.width();
+        let height = floor_texture.height();
+        let mut floor = Vec::new();
+        for y in 0..height {
+            for x in 0..width {
+                let pixel = floor_texture.get_pixel(x, y);
+                // color in rgba format
+                let color = (pixel[0] as u32) << 24 | (pixel[1] as u32) << 16 | (pixel[2] as u32) << 8 | (pixel[3] as u32);
+                let texture = floor_textures.get(&color);
+                floor.push(texture.cloned());
+            }
+        }
 
         // finally we turn this into our TexturedMap
         TexturedMap::with_data(width, height, walls, floor, ceiling)
