@@ -31,6 +31,13 @@ impl Texture {
         }
     }
 
+    pub fn empty() -> Self {
+        Self {
+            path: String::new(),
+            img: ImageBuffer::new(1, 1),
+        }
+    }
+
     pub fn get(&self, x: u32, y: u32) -> [u8; 4] {
         let pixel = self.img.get_pixel(x, y);
         [pixel[0], pixel[1], pixel[2], 0xFF]

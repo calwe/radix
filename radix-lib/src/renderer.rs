@@ -3,12 +3,13 @@ use std::{rc::Rc, cell::RefCell};
 use log::trace;
 use pixels::{Pixels, SurfaceTexture};
 
-use crate::{util::color::Color, map::{colored_map::ColoredMap, textured_map::TexturedMap}, camera::Camera};
+use crate::{util::color::Color, map::{colored_map::ColoredMap, textured_map::TexturedMap, texture::Texture}, camera::Camera};
 
 pub struct Renderer {
     pixels: Pixels,
     width: u32,
     height: u32,
+    empty_texture: Rc<Texture>,
 }
 
 impl Renderer {
@@ -23,6 +24,7 @@ impl Renderer {
             pixels,
             width: window.inner_size().width / scale,
             height: window.inner_size().height / scale,
+            empty_texture: Rc::new(Texture::empty()),
         }
     }
 
@@ -268,6 +270,7 @@ impl Renderer {
     }
 
     pub fn draw_floor_and_ceiling(&mut self, camera: &Camera, map: &TexturedMap) {
+        let def_texture = Rc::new(crate::map::texture::Texture::new("assets/textures/Texture1.png"));
         for y in 0..self.height {
             // left ray
             let ray_dir_x0 = camera.dir_x - camera.plane_x;
@@ -299,19 +302,22 @@ impl Renderer {
                 let cell_x = floor_x.floor() as u32;
                 let cell_y = floor_y.floor() as u32;
 
+                let texture = match map.get_floor(cell_x, cell_y) {
+                    Some(texture) => texture,
+                    None => self.empty_texture.clone(),
+                };
+
                 // get the texture coordinate from the fractional part
-                let tx = (map.floor.width() as f64 * (floor_x - floor_x.floor())) as u32 & (map.floor.width() - 1);
-                let ty = (map.floor.height() as f64 * (floor_y - floor_y.floor())) as u32 & (map.floor.height() - 1);
+                let tx = (texture.width() as f64 * (floor_x - floor_x.floor())) as u32 & (texture.width() - 1);
+                let ty = (texture.height() as f64 * (floor_y - floor_y.floor())) as u32 & (texture.height() - 1);
 
                 floor_x += step_x;
                 floor_y += step_y;
 
-                let mut color = Color::from_rgba_arr(map.floor.get(tx, ty));
-                color = color.darken(0.5);
+                let color = Color::from_rgba_arr(texture.get(tx, ty));
                 self.draw_pixel(color, x, y);
 
-                let mut color = Color::from_rgba_arr(map.ceiling.get(tx, ty));
-                color = color.darken(0.5);
+                let color = Color::from_rgba_arr(map.ceiling.get(tx, ty));
                 self.draw_pixel(color, x, self.height - y - 1);
             }
         }

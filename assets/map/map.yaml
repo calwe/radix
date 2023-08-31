@@ -1,7 +1,7 @@
 walls_path: assets/map/walls.png
 walls_texture_map:
   2852126975: assets/textures/Texture43.png
-  2852170495: assets/textures/Texture160.png
+  2852170495: assets/textures/Texture138.png
   4294923775: assets/textures/Texture192.png
   1442797055: assets/textures/Texture195.png
   1442840575: assets/textures/Texture58.png
@@ -9,5 +9,18 @@ walls_texture_map:
   4283826175: assets/textures/Texture153.png
   1431699455: assets/textures/Texture237.png
   43775: assets/textures/Texture238.png
-floor_path: assets/textures/Texture29.png
-ceiling_path: assets/textures/Texture22.png
+floor_path: assets/map/floor.png
+floor_texture_map:
+  1912602879: assets/textures/Texture274.png
+  1509949695: assets/textures/Texture269.png
+  1845522175: assets/textures/Texture162.png
+  2745382655: assets/textures/Texture173.png
+  1221578751: assets/textures/Texture65.png
+  1124101887: assets/textures/Texture330.png
+ceiling_path: assets/textures/ceiling.png
+ceiling_textre_map:
+  1912602879: assets/textures/Texture165.png
+  1845522175: assets/textures/Texture36.png
+  2745382655: assets/textures/Texture177.png
+  1221578751: assets/textures/Texture65.png
+  1124101887: assets/textures/Texture36.png
