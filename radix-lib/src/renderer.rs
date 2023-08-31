@@ -1,14 +1,20 @@
-use std::{rc::Rc, cell::RefCell};
+use std::{cell::RefCell, rc::Rc};
 
 use log::trace;
 use pixels::{Pixels, SurfaceTexture};
 
-use crate::{util::color::Color, map::{colored_map::ColoredMap, textured_map::TexturedMap, texture::Texture}, camera::Camera};
+use crate::{
+    camera::Camera,
+    map::{colored_map::ColoredMap, sprite, texture::Texture, textured_map::TexturedMap},
+    util::color::Color,
+};
 
 pub struct Renderer {
     pixels: Pixels,
     width: u32,
     height: u32,
+    scale: u32,
+    z_buffer: Vec<f64>,
     empty_texture: Rc<Texture>,
 }
 
@@ -16,14 +22,22 @@ impl Renderer {
     pub fn new(window: &winit::window::Window, scale: u32) -> Self {
         let pixels = {
             let window_size = window.inner_size();
-            let surface_texture = SurfaceTexture::new(window_size.width, window_size.height, &window);
-            Pixels::new(window_size.width / scale, window_size.height / scale, surface_texture).unwrap()
+            let surface_texture =
+                SurfaceTexture::new(window_size.width, window_size.height, &window);
+            Pixels::new(
+                window_size.width / scale,
+                window_size.height / scale,
+                surface_texture,
+            )
+            .unwrap()
         };
 
         Self {
             pixels,
             width: window.inner_size().width / scale,
             height: window.inner_size().height / scale,
+            z_buffer: Vec::with_capacity((window.inner_size().width / scale) as usize),
+            scale,
             empty_texture: Rc::new(Texture::empty()),
         }
     }
@@ -109,7 +123,7 @@ impl Renderer {
                 step_y = 1;
                 side_dist_y = (map_y as f64 + 1.0 - camera.pos_y) * delta_dist_y;
             }
-       
+
             // now that we have all the values we need, we can start the DDA loop.
             // this loop will continue until a wall is hit.
             let mut hit = false; // has the ray hit a wall?
@@ -157,6 +171,7 @@ impl Renderer {
     pub fn draw_frame_textured_map(&mut self, camera: &Camera, map: &TexturedMap) {
         self.draw_floor_and_ceiling(camera, map);
 
+        self.z_buffer.clear();
         // We draw the frame using a method based on DDA.
         // The method used is outlined at https://lodev.org/cgtutor/raycasting.html
         // let mut lines = Vec::new();
@@ -204,7 +219,7 @@ impl Renderer {
                 step_y = 1;
                 side_dist_y = (map_y as f64 + 1.0 - camera.pos_y) * delta_dist_y;
             }
-       
+
             // now that we have all the values we need, we can start the DDA loop.
             // this loop will continue until a wall is hit.
             let mut hit = false; // has the ray hit a wall?
@@ -236,7 +251,7 @@ impl Renderer {
             };
 
             // calculate the height of the line to draw on the screen.
-            let line_height = (self.height as f64 / perp_wall_distance) as u32 + 2; // we add 2 to ensure no floor peeks through
+            let line_height = ((self.height as f64 / perp_wall_distance) as u32).saturating_add(2); // we add 2 to ensure no floor peeks through
             let start = (self.height as i32 / 2 - line_height as i32 / 2).max(0);
             let end = (self.height as i32 / 2 + line_height as i32 / 2).min(self.height as i32);
 
@@ -250,13 +265,13 @@ impl Renderer {
             let wall_x = wall_x - wall_x.floor();
 
             let mut tex_x = (wall_x * texture.width() as f64) as u32;
-            if (side == 0 && ray_dir_x > 0.0)
-            || (side == 1 && ray_dir_y < 0.0) {
+            if (side == 0 && ray_dir_x > 0.0) || (side == 1 && ray_dir_y < 0.0) {
                 tex_x = texture.width() - tex_x - 1;
             }
 
             let step = 1.0 * texture.height() as f64 / line_height as f64;
-            let mut tex_pos = (start - self.height as i32 / 2 + line_height as i32 / 2) as f64 * step;
+            let mut tex_pos =
+                (start - self.height as i32 / 2 + line_height as i32 / 2) as f64 * step;
             for y in start..end {
                 let tex_y = tex_pos as u32 & (texture.height() - 1);
                 tex_pos += step;
@@ -266,11 +281,15 @@ impl Renderer {
                 }
                 self.draw_pixel(color, x, y as u32);
             }
+
+            self.z_buffer.push(perp_wall_distance);
         }
+
+        // draw the sprites
+        self.draw_sprites(camera, map);
     }
 
     pub fn draw_floor_and_ceiling(&mut self, camera: &Camera, map: &TexturedMap) {
-        let def_texture = Rc::new(crate::map::texture::Texture::new("assets/textures/Texture1.png"));
         for y in 0..self.height {
             // left ray
             let ray_dir_x0 = camera.dir_x - camera.plane_x;
@@ -312,10 +331,16 @@ impl Renderer {
                 };
 
                 // get the texture coordinate from the fractional part
-                let floor_tx = (floor_texture.width() as f64 * (floor_x - floor_x.floor())) as u32 & (floor_texture.width() - 1);
-                let floor_ty = (floor_texture.height() as f64 * (floor_y - floor_y.floor())) as u32 & (floor_texture.height() - 1);
-                let ceiling_tx = (ceiling_texture.width() as f64 * (floor_x - floor_x.floor())) as u32 & (ceiling_texture.width() - 1);
-                let ceiling_ty = (ceiling_texture.height() as f64 * (floor_y - floor_y.floor())) as u32 & (ceiling_texture.height() - 1);
+                let floor_tx = (floor_texture.width() as f64 * (floor_x - floor_x.floor())) as u32
+                    & (floor_texture.width() - 1);
+                let floor_ty = (floor_texture.height() as f64 * (floor_y - floor_y.floor())) as u32
+                    & (floor_texture.height() - 1);
+                let ceiling_tx = (ceiling_texture.width() as f64 * (floor_x - floor_x.floor()))
+                    as u32
+                    & (ceiling_texture.width() - 1);
+                let ceiling_ty = (ceiling_texture.height() as f64 * (floor_y - floor_y.floor()))
+                    as u32
+                    & (ceiling_texture.height() - 1);
 
                 floor_x += step_x;
                 floor_y += step_y;
@@ -325,6 +350,89 @@ impl Renderer {
 
                 let color = Color::from_rgba_arr(ceiling_texture.get(ceiling_tx, ceiling_ty));
                 self.draw_pixel(color, x, self.height - y - 1);
+            }
+        }
+    }
+
+    pub fn draw_sprites(&mut self, camera: &Camera, map: &TexturedMap) {
+        let mut sprites = map.sprites.clone();
+        sprites.sort_by(|a, b| {
+            let a_x = a.borrow().pos_x();
+            let a_y = a.borrow().pos_y();
+            let b_x = b.borrow().pos_x();
+            let b_y = b.borrow().pos_y();
+
+            let a_dist = (camera.pos_x - a_x).powi(2) + (camera.pos_y - a_y).powi(2);
+            let b_dist = (camera.pos_x - b_x).powi(2) + (camera.pos_y - b_y).powi(2);
+
+            b_dist.partial_cmp(&a_dist).unwrap()
+        });
+
+        for sprite in sprites {
+            let sprite = sprite.borrow();
+            let sprite_x = sprite.pos_x() - camera.pos_x;
+            let sprite_y = sprite.pos_y() - camera.pos_y;
+
+            // transform sprite with the inverse camera matrix
+            let inv_det = 1.0 / (camera.plane_x * camera.dir_y - camera.dir_x * camera.plane_y);
+
+            let transform_x = inv_det * (camera.dir_y * sprite_x - camera.dir_x * sprite_y);
+            let transform_y = inv_det * (-camera.plane_y * sprite_x + camera.plane_x * sprite_y);
+
+            let sprite_screen_x =
+                ((self.width as f64 / 2.0) * (1.0 + transform_x / transform_y)) as i32;
+
+            // calculate height of the sprite on screen
+            let sprite_height =
+                ((self.height as f64 / transform_y).abs() * sprite.scale_y()) as i32;
+
+            // TODO: this feels like it could be better. the sprite isnt perfectly on the floor
+            let pos_z = (sprite.pos_z()
+                * (self.height as f64 / 4.0 + (4.0 / sprite.scale_y().powi(2)) / self.scale as f64))
+                as i32;
+            let pos_z_screen = (pos_z as f64 / transform_y) as i32;
+
+            // calculate lowest and highest pixel to fill in current stripe
+            let draw_start_y =
+                ((-sprite_height as i32 / 2 + self.height as i32 / 2) + pos_z_screen).max(0);
+            let draw_end_y = ((sprite_height as i32 / 2 + self.height as i32 / 2) + pos_z_screen)
+                .min(self.height as i32);
+
+            // calculate width of the sprite
+            let sprite_width = ((self.height as f64 / transform_y).abs() * sprite.scale_x()) as i32;
+            let draw_start_x = (-sprite_width as i32 / 2 + sprite_screen_x).max(0);
+            let draw_end_x = (sprite_width as i32 / 2 + sprite_screen_x).min(self.width as i32);
+
+            // loop through every vertical stripe of the sprite on screen
+            for stripe in draw_start_x..draw_end_x {
+                let tex_x = ((stripe as i32 - (-sprite_width as i32 / 2 + sprite_screen_x))
+                    * sprite.width() as i32
+                    / sprite_width as i32)
+                    .max(0) as u32;
+
+                // the conditions in the if are:
+                // 1) it's in front of camera plane so you don't see things behind you
+                // 2) it's on the screen (left)
+                // 3) it's on the screen (right)
+                // 4) ZBuffer, with perpendicular distance
+                if transform_y > 0.0
+                    && stripe >= 0
+                    && stripe < self.width as i32
+                    && transform_y < self.z_buffer[stripe as usize]
+                {
+                    for y in draw_start_y..draw_end_y {
+                        let d = ((y as i32) - pos_z_screen) - (self.height as i32 / 2)
+                            + (sprite_height as i32 / 2);
+                        let tex_y = (d as f64 * sprite.height()) / sprite_height as f64;
+
+                        let color = Color::from_rgba_arr(
+                            sprite.texture().get(tex_x, tex_y.max(0.0) as u32),
+                        );
+                        if color.to_hex() & 0xFF == 0xFF {
+                            self.draw_pixel(color, stripe as u32, y as u32);
+                        }
+                    }
+                }
             }
         }
     }

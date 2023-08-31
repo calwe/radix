@@ -1,8 +1,8 @@
-use std::{collections::HashMap, rc::Rc};
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use super::{textured_map::TexturedMap, texture::Texture};
+use super::{sprite::Sprite, texture::Texture, textured_map::TexturedMap};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct TexturedMapBuilder {
@@ -12,6 +12,7 @@ pub struct TexturedMapBuilder {
     floor_texture_map: HashMap<u32, String>, // colour -> texture path
     ceiling_path: String,
     ceiling_texture_map: HashMap<u32, String>, // colour -> texture path
+    sprites: Vec<(f64, f64, f64, f64, f64, String)>, // x, y, z, scale_x, scale_y, texture path
 }
 
 impl TexturedMapBuilder {
@@ -38,7 +39,10 @@ impl TexturedMapBuilder {
             for x in 0..width {
                 let pixel = walls_texture.get_pixel(x, y);
                 // color in rgba format
-                let color = (pixel[0] as u32) << 24 | (pixel[1] as u32) << 16 | (pixel[2] as u32) << 8 | (pixel[3] as u32);
+                let color = (pixel[0] as u32) << 24
+                    | (pixel[1] as u32) << 16
+                    | (pixel[2] as u32) << 8
+                    | (pixel[3] as u32);
                 let texture = wall_textures.get(&color);
                 walls.push(texture.cloned());
             }
@@ -59,7 +63,10 @@ impl TexturedMapBuilder {
             for x in 0..width {
                 let pixel = floor_texture.get_pixel(x, y);
                 // color in rgba format
-                let color = (pixel[0] as u32) << 24 | (pixel[1] as u32) << 16 | (pixel[2] as u32) << 8 | (pixel[3] as u32);
+                let color = (pixel[0] as u32) << 24
+                    | (pixel[1] as u32) << 16
+                    | (pixel[2] as u32) << 8
+                    | (pixel[3] as u32);
                 let texture = floor_textures.get(&color);
                 floor.push(texture.cloned());
             }
@@ -79,13 +86,29 @@ impl TexturedMapBuilder {
             for x in 0..width {
                 let pixel = ceiling_texture.get_pixel(x, y);
                 // color in rgba format
-                let color = (pixel[0] as u32) << 24 | (pixel[1] as u32) << 16 | (pixel[2] as u32) << 8 | (pixel[3] as u32);
+                let color = (pixel[0] as u32) << 24
+                    | (pixel[1] as u32) << 16
+                    | (pixel[2] as u32) << 8
+                    | (pixel[3] as u32);
                 let texture = ceiling_textures.get(&color);
                 ceiling.push(texture.cloned());
             }
         }
 
+        // we can also add our sprites
+        let mut sprites = Vec::new();
+        for (x, y, z, scale_x, scale_y, path) in &self.sprites {
+            sprites.push(Rc::new(RefCell::new(Sprite::new(
+                *x,
+                *y,
+                *z,
+                *scale_x,
+                *scale_y,
+                Rc::new(Texture::new(path)),
+            ))));
+        }
+
         // finally we turn this into our TexturedMap
-        TexturedMap::with_data(width, height, walls, floor, ceiling)
+        TexturedMap::with_data(width, height, walls, floor, ceiling, sprites)
     }
 }
