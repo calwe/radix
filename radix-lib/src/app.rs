@@ -1,9 +1,11 @@
+use std::{collections::HashMap, fs::File, io::Write};
+
 use log::{trace, info};
 use game_loop::game_loop;
 use winit::{event_loop::EventLoop, event::{Event, WindowEvent, VirtualKeyCode}, dpi::{LogicalSize, LogicalPosition}, window::CursorGrabMode};
 use winit_input_helper::WinitInputHelper;
 
-use crate::{window::Window, renderer::Renderer, util::color::Color, map::colored_map::ColoredMap, camera::Camera, player::Player, scene::{Scene, Map}};
+use crate::{window::Window, renderer::Renderer, util::color::Color, map::{colored_map::ColoredMap, textured_map_builder::TexturedMapBuilder}, camera::Camera, player::Player, scene::{Scene, Map}};
 
 const R: u32 = 0xFF0000FF;
 const G: u32 = 0x00FF00FF;
@@ -56,6 +58,10 @@ impl App {
 
     /// The final function called after defining the app.
     pub fn run(mut self) {
+        // TEMP
+        let map = TexturedMapBuilder::load("assets/map/map.yaml");
+        println!("{:#x?}", map);
+
         let event_loop = EventLoop::new();
         let window = winit::window::WindowBuilder::new()
             .with_title(self.window.title.as_ref().unwrap_or(&self.title)) 

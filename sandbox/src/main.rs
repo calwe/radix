@@ -36,10 +36,10 @@ fn main() {
     pretty_env_logger::init();
 
     let a = None;
-    let w = Some(Rc::new(Texture::new("assets/Texture45.png")));
-    let b = Some(Rc::new(Texture::new("assets/Texture190.png")));
-    let floor = Rc::new(Texture::new("assets/Texture29.png"));
-    let ceiling = Rc::new(Texture::new("assets/Texture22.png"));
+    let w = Some(Rc::new(Texture::new("assets/textures/Texture45.png")));
+    let b = Some(Rc::new(Texture::new("assets/textures/Texture190.png")));
+    let floor = Rc::new(Texture::new("assets/textures/Texture29.png"));
+    let ceiling = Rc::new(Texture::new("assets/textures/Texture22.png"));
     // fix this mess
     let scene0_map = [
         w.clone(), w.clone(), w.clone(), w.clone(), w.clone(), w.clone(), w.clone(), w.clone(),
@@ -49,14 +49,26 @@ fn main() {
         w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
         w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
         w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
+        w.clone(), w.clone(), w.clone(), w.clone(), a.clone(), w.clone(), w.clone(), w.clone(),
+        a.clone(), a.clone(), a.clone(), w.clone(), a.clone(), w.clone(), a.clone(), a.clone(),
+        a.clone(), a.clone(), a.clone(), w.clone(), a.clone(), w.clone(), a.clone(), a.clone(),
+        a.clone(), a.clone(), a.clone(), w.clone(), a.clone(), w.clone(), a.clone(), a.clone(),
+        a.clone(), a.clone(), a.clone(), w.clone(), a.clone(), w.clone(), a.clone(), a.clone(),
+        w.clone(), w.clone(), w.clone(), w.clone(), a.clone(), w.clone(), w.clone(), w.clone(),
+        w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
+        w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
+        w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
+        w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
+        w.clone(), a.clone(), b.clone(), a.clone(), b.clone(), a.clone(), b.clone(), w.clone(),
+        w.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), a.clone(), w.clone(),
         w.clone(), w.clone(), w.clone(), w.clone(), w.clone(), w.clone(), w.clone(), w.clone(),
     ];
 
-    let window = Window::with_title(1280, 720, 1, "Sandbox Window");
+    let window = Window::with_title(1280, 720, 3, "Sandbox Window");
     let scene0 = Scene::new(
         "scene0",
         Player::new(&window, 5.0, 5.0, 0.1, 0.05),
-        Map::Textured(TexturedMap::with_data(8, 8, scene0_map.to_vec(), floor, ceiling)),
+        Map::Textured(TexturedMap::with_data(8, 20, scene0_map.to_vec(), floor, ceiling)),
     );
     let scene1 = Scene::new(
         "scene1",

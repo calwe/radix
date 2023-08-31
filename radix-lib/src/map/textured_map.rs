@@ -45,6 +45,6 @@ impl TexturedMap {
     }
 
     pub fn get(&self, x: u32, y: u32) -> Option<Rc<Texture>> {
-        self.data[(y * self.width + x) as usize].clone()
+        self.data.get((y * self.width + x) as usize).unwrap().clone()
     }
 }

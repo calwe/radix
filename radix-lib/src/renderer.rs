@@ -220,6 +220,7 @@ impl Renderer {
                 }
 
                 // check if the ray has hit a wall.
+                // TODO: if there is a hole in the map, this will panic.
                 if map.get(map_x as u32, map_y as u32).is_some() {
                     hit = true;
                 }
