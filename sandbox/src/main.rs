@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use radix_lib::{app::App, window::Window, scene::{Scene, self}, map::{colored_map::ColoredMap, texture::Texture, textured_map::TexturedMap}, player::Player};
+use radix_lib::{app::App, window::Window, scene::{Scene, self, Map}, map::{colored_map::ColoredMap, texture::Texture, textured_map::TexturedMap}, player::Player};
 
 const R: u32 = 0xFF0000FF;
 const G: u32 = 0x00FF00FF;
@@ -53,13 +53,19 @@ fn main() {
     let window = Window::with_title(1280, 720, 1, "Sandbox Window");
     let scene0 = Scene::new(
         "scene0",
-        Player::new(&window, 5.0, 5.0, 0.1, 0.1),
-        TexturedMap::with_data(8, 8, scene0_map.to_vec()),
+        Player::new(&window, 5.0, 5.0, 0.1, 0.05),
+        Map::Textured(TexturedMap::with_data(8, 8, scene0_map.to_vec())),
+    );
+    let scene1 = Scene::new(
+        "scene1",
+        Player::new(&window, 5.0, 5.0, 0.08, 0.1),
+        Map::Colored(ColoredMap::with_raw_data(12, 12, SCENE1_MAP.to_vec())),
     );
 
     App::new()
         .title("Sandbox")
         .window(window)
         .add_scene(scene0)
+        .add_scene(scene1)
         .run();
 }

@@ -7,15 +7,20 @@ use crate::{player::Player, map::colored_map::ColoredMap, map::textured_map::Tex
 const SAVE_PATH: &str = "scenes";
 
 #[derive(Serialize, Deserialize)]
+pub enum Map {
+    Colored(ColoredMap),
+    Textured(TexturedMap),
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct Scene {
     name: String,
     pub(crate) player: Player,
-    // pub(crate) map: ColoredMap,
-    pub(crate) map: TexturedMap,
+    pub(crate) map: Map,
 }
 
 impl Scene {
-    pub fn new(name: &str, player: Player, map: TexturedMap) -> Self {
+    pub fn new(name: &str, player: Player, map: Map) -> Self {
         Self {
             name: name.to_string(),
             player,

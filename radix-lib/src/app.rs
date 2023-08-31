@@ -3,7 +3,7 @@ use game_loop::game_loop;
 use winit::{event_loop::EventLoop, event::{Event, WindowEvent, VirtualKeyCode}, dpi::{LogicalSize, LogicalPosition}, window::CursorGrabMode};
 use winit_input_helper::WinitInputHelper;
 
-use crate::{window::Window, renderer::Renderer, util::color::Color, map::colored_map::ColoredMap, camera::Camera, player::Player, scene::Scene};
+use crate::{window::Window, renderer::Renderer, util::color::Color, map::colored_map::ColoredMap, camera::Camera, player::Player, scene::{Scene, Map}};
 
 const R: u32 = 0xFF0000FF;
 const G: u32 = 0x00FF00FF;
@@ -150,8 +150,10 @@ impl App {
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        // renderer.draw_frame_colored_map(&current_scene.player.camera, &current_scene.map);
-        renderer.draw_frame_textured_map(&current_scene.player.camera, &current_scene.map);
+        match &current_scene.map {
+            Map::Colored(map) => renderer.draw_frame_colored_map(&current_scene.player.camera, map),
+            Map::Textured(map) => renderer.draw_frame_textured_map(&current_scene.player.camera, map),
+        }
 
         renderer.render();
     }
