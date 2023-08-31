@@ -2,7 +2,7 @@ use std::{rc::Rc, cell::RefCell};
 
 use pixels::{Pixels, SurfaceTexture};
 
-use crate::{util::color::Color, map::Map, camera::Camera};
+use crate::{util::color::Color, map::colored_map::ColoredMap, camera::Camera};
 
 pub struct Renderer {
     pixels: Pixels,
@@ -51,7 +51,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw_frame(&mut self, camera: &Camera, map: &Map) {
+    pub fn draw_frame(&mut self, camera: &Camera, map: &ColoredMap) {
         // We draw the frame using a method based on DDA.
         // The method used is outlined at https://lodev.org/cgtutor/raycasting.html
         // let mut lines = Vec::new();

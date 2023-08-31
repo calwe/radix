@@ -3,13 +3,13 @@ use serde::{Deserialize, Serialize};
 use crate::util::color::Color;
 
 #[derive(Serialize, Deserialize)]
-pub struct Map {
+pub struct ColoredMap {
     pub(crate) width: u32,
     pub(crate) height: u32,
     pub(crate) data: Vec<Color>,
 }
 
-impl Map {
+impl ColoredMap {
     pub fn empty(width: u32, height: u32) -> Self {
         Self {
             width,
