@@ -1,12 +1,30 @@
+use std::rc::Rc;
+
 use serde::{Deserialize, Serialize};
 
 use super::texture::Texture;
 
-#[derive(Serialize, Deserialize)]
 pub struct TexturedMap {
     pub(crate) width: u32,
     pub(crate) height: u32,
-    pub(crate) data: Vec<Texture>,
+    pub(crate) data: Vec<Option<Rc<Texture>>>,
+}
+
+// TODO: Write deserlaize and serialize for TexturedMap
+impl Serialize for TexturedMap {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer {
+            todo!()
+        }
+}
+
+impl<'de> Deserialize<'de> for TexturedMap {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de> {
+        todo!()
+    }
 }
 
 impl TexturedMap {
@@ -18,7 +36,7 @@ impl TexturedMap {
         }
     }
 
-    pub fn with_data(width: u32, height: u32, data: Vec<Texture>) -> Self {
+    pub fn with_data(width: u32, height: u32, data: Vec<Option<Rc<Texture>>>) -> Self {
         Self {
             width,
             height,
@@ -26,11 +44,11 @@ impl TexturedMap {
         }
     }
 
-    pub fn set(&mut self, x: u32, y: u32, color: Texture) {
-        self.data[(y * self.width + x) as usize] = color;
+    pub fn set(&mut self, x: u32, y: u32, texture: Rc<Texture>) {
+        self.data[(y * self.width + x) as usize] = Some(texture);
     }
 
-    pub fn get(&self, x: u32, y: u32) -> Texture {
+    pub fn get(&self, x: u32, y: u32) -> Option<Rc<Texture>> {
         self.data[(y * self.width + x) as usize].clone()
     }
 }

@@ -33,6 +33,14 @@ impl Texture {
 
     pub fn get(&self, x: u32, y: u32) -> [u8; 4] {
         let pixel = self.img.get_pixel(x, y);
-        [pixel[0], pixel[1], pixel[2], pixel[3]]
+        [pixel[0], pixel[1], pixel[2], 0xFF]
+    }
+
+    pub fn width(&self) -> u32 {
+        self.img.width()
+    }
+
+    pub fn height(&self) -> u32 {
+        self.img.height()
     }
 }

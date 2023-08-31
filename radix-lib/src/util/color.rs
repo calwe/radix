@@ -26,6 +26,10 @@ impl Color {
         Self::from_rgba(r, g, b, 255)
     }
 
+    pub fn from_rgba_arr(arr: [u8; 4]) -> Self {
+        Self::from_rgba(arr[0], arr[1], arr[2], arr[3])
+    }
+
     pub fn to_hex(&self) -> u32 {
         self.color
     }

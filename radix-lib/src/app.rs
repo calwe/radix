@@ -150,7 +150,8 @@ impl App {
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        renderer.draw_frame_colored_map(&current_scene.player.camera, &current_scene.map);
+        // renderer.draw_frame_colored_map(&current_scene.player.camera, &current_scene.map);
+        renderer.draw_frame_textured_map(&current_scene.player.camera, &current_scene.map);
 
         renderer.render();
     }

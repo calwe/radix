@@ -2,7 +2,7 @@ use std::fs;
 
 use serde::{Serialize, Deserialize};
 
-use crate::{player::Player, map::colored_map::ColoredMap};
+use crate::{player::Player, map::colored_map::ColoredMap, map::textured_map::TexturedMap};
 
 const SAVE_PATH: &str = "scenes";
 
@@ -10,11 +10,12 @@ const SAVE_PATH: &str = "scenes";
 pub struct Scene {
     name: String,
     pub(crate) player: Player,
-    pub(crate) map: ColoredMap,
+    // pub(crate) map: ColoredMap,
+    pub(crate) map: TexturedMap,
 }
 
 impl Scene {
-    pub fn new(name: &str, player: Player, map: ColoredMap) -> Self {
+    pub fn new(name: &str, player: Player, map: TexturedMap) -> Self {
         Self {
             name: name.to_string(),
             player,
