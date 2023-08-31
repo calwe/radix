@@ -2,8 +2,8 @@ walls_path: assets/map/walls.png
 walls_texture_map:
   2852126975: assets/textures/Texture43.png
   2852170495: assets/textures/Texture160.png
-  4294923775: assets/textures/Texture225.png
-  1442797055: assets/textures/Texture227.png
+  4294923775: assets/textures/Texture192.png
+  1442797055: assets/textures/Texture195.png
   1442840575: assets/textures/Texture58.png
   11184895: assets/textures/Texture68.png
   4283826175: assets/textures/Texture153.png

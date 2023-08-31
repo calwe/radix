@@ -58,10 +58,6 @@ impl App {
 
     /// The final function called after defining the app.
     pub fn run(mut self) {
-        // TEMP
-        let map = TexturedMapBuilder::load("assets/map/map.yaml");
-        println!("{:#x?}", map);
-
         let event_loop = EventLoop::new();
         let window = winit::window::WindowBuilder::new()
             .with_title(self.window.title.as_ref().unwrap_or(&self.title)) 

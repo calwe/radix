@@ -254,7 +254,7 @@ impl Renderer {
             }
 
             let step = 1.0 * texture.height() as f64 / line_height as f64;
-            let mut tex_pos = (start - self.height as i32 / 2 + line_height as i32) as f64 * step;
+            let mut tex_pos = (start - self.height as i32 / 2 + line_height as i32 / 2) as f64 * step;
             for y in start..end {
                 let tex_y = tex_pos as u32 & (texture.height() - 1);
                 tex_pos += step;
@@ -300,8 +300,8 @@ impl Renderer {
                 let cell_y = floor_y.floor() as u32;
 
                 // get the texture coordinate from the fractional part
-                let mut tx = (map.floor.width() as f64 * (floor_x - floor_x.floor())) as u32 & (map.floor.width() - 1);
-                let mut ty = (map.floor.height() as f64 * (floor_y - floor_y.floor())) as u32 & (map.floor.height() - 1);
+                let tx = (map.floor.width() as f64 * (floor_x - floor_x.floor())) as u32 & (map.floor.width() - 1);
+                let ty = (map.floor.height() as f64 * (floor_y - floor_y.floor())) as u32 & (map.floor.height() - 1);
 
                 floor_x += step_x;
                 floor_y += step_y;
