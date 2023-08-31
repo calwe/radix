@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{camera::Camera, window::Window};
+use crate::{camera::Camera, window::Window, scene::Map};
 
 #[derive(Serialize, Deserialize)]
 pub struct Player {
@@ -28,22 +28,46 @@ impl Player {
         }
     }
     
-    pub fn update(&mut self, input: &WinitInputHelper) {
+    pub fn update(&mut self, input: &WinitInputHelper, map: &Map) {
         if input.key_held(VirtualKeyCode::W) {
-            self.pos_x += self.speed * self.dir.cos();
-            self.pos_y += self.speed * self.dir.sin();
+            let x_diff = self.speed * self.dir.cos();
+            let y_diff = self.speed * self.dir.sin();
+            if map.get_is_none((self.pos_x + x_diff) as u32, self.pos_y as u32) {
+                self.pos_x += x_diff;
+            }
+            if map.get_is_none(self.pos_x as u32, (self.pos_y + y_diff) as u32) {
+                self.pos_y += y_diff;
+            }
         }
         if input.key_held(VirtualKeyCode::S) {
-            self.pos_x -= self.speed * self.dir.cos();
-            self.pos_y -= self.speed * self.dir.sin();
+            let x_diff = self.speed * self.dir.cos();
+            let y_diff = self.speed * self.dir.sin();
+            if map.get_is_none((self.pos_x - x_diff) as u32, self.pos_y as u32) {
+                self.pos_x -= x_diff;
+            }
+            if map.get_is_none(self.pos_x as u32, (self.pos_y - y_diff) as u32) {
+                self.pos_y -= y_diff;
+            }
         }
         if input.key_held(VirtualKeyCode::A) {
-            self.pos_x -= self.speed * self.dir.sin();
-            self.pos_y += self.speed * self.dir.cos();
+            let x_diff = self.speed * self.dir.sin();
+            let y_diff = self.speed * self.dir.cos();
+            if map.get_is_none((self.pos_x - x_diff) as u32, self.pos_y as u32) {
+                self.pos_x -= x_diff;
+            }
+            if map.get_is_none(self.pos_x as u32, (self.pos_y + y_diff) as u32) {
+                self.pos_y += y_diff;
+            }
         }
         if input.key_held(VirtualKeyCode::D) {
-            self.pos_x += self.speed * self.dir.sin();
-            self.pos_y -= self.speed * self.dir.cos();
+            let x_diff = self.speed * self.dir.sin();
+            let y_diff = self.speed * self.dir.cos();
+            if map.get_is_none((self.pos_x + x_diff) as u32, self.pos_y as u32) {
+                self.pos_x += x_diff;
+            }
+            if map.get_is_none(self.pos_x as u32, (self.pos_y - y_diff) as u32) {
+                self.pos_y -= y_diff;
+            }
         }
 
         let mouse_diff = input.mouse().unwrap_or((0.0, 0.0)).0 as f64 - self.window_width as f64 / 2.0;

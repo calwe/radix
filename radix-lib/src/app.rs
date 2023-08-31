@@ -142,7 +142,7 @@ impl App {
     fn update(&mut self) {
         // self.camera.add_position(0.01, 0.01);
         let current_scene = &mut self.scenes[self.current_scene];
-        current_scene.player.update(&self.input);
+        current_scene.player.update(&self.input, &current_scene.map);
     }
 
     fn render(&mut self) {

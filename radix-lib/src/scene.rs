@@ -2,7 +2,7 @@ use std::fs;
 
 use serde::{Serialize, Deserialize};
 
-use crate::{player::Player, map::colored_map::ColoredMap, map::textured_map::TexturedMap};
+use crate::{player::Player, map::colored_map::ColoredMap, map::textured_map::TexturedMap, util::color::Color};
 
 const SAVE_PATH: &str = "scenes";
 
@@ -10,6 +10,15 @@ const SAVE_PATH: &str = "scenes";
 pub enum Map {
     Colored(ColoredMap),
     Textured(TexturedMap),
+}
+
+impl Map {
+    pub fn get_is_none(&self, x: u32, y: u32) -> bool {
+        match self {
+            Map::Colored(map) => map.get(x, y) == Color::from_rgb_hex(0),
+            Map::Textured(map) => map.get(x, y).is_none(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
