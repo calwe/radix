@@ -12,6 +12,7 @@ pub struct Player {
     pub(crate) dir: f64,
     pub(crate) speed: f64,
     pub(crate) turn_speed: f64,
+    window_width: u32,
 }
 
 impl Player {
@@ -23,6 +24,7 @@ impl Player {
             dir: 0.0,
             speed,
             turn_speed,
+            window_width: window.width,
         }
     }
     
@@ -44,7 +46,8 @@ impl Player {
             self.pos_y -= self.speed * self.dir.cos();
         }
 
-        self.dir -= self.turn_speed * 0.1 * input.mouse_diff().0 as f64;
+        let mouse_diff = input.mouse().unwrap_or((0.0, 0.0)).0 as f64 - self.window_width as f64 / 2.0;
+        self.dir -= self.turn_speed * 0.1 * mouse_diff;
 
         self.camera.pos_x = self.pos_x;
         self.camera.pos_y = self.pos_y;
