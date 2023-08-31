@@ -236,7 +236,7 @@ impl Renderer {
             };
 
             // calculate the height of the line to draw on the screen.
-            let line_height = (self.height as f64 / perp_wall_distance) as u32;
+            let line_height = (self.height as f64 / perp_wall_distance) as u32 + 2; // we add 2 to ensure no floor peeks through
             let start = (self.height as i32 / 2 - line_height as i32 / 2).max(0);
             let end = (self.height as i32 / 2 + line_height as i32 / 2).min(self.height as i32);
 
@@ -302,22 +302,28 @@ impl Renderer {
                 let cell_x = floor_x.floor() as u32;
                 let cell_y = floor_y.floor() as u32;
 
-                let texture = match map.get_floor(cell_x, cell_y) {
+                let floor_texture = match map.get_floor(cell_x, cell_y) {
+                    Some(texture) => texture,
+                    None => self.empty_texture.clone(),
+                };
+                let ceiling_texture = match map.get_ceiling(cell_x, cell_y) {
                     Some(texture) => texture,
                     None => self.empty_texture.clone(),
                 };
 
                 // get the texture coordinate from the fractional part
-                let tx = (texture.width() as f64 * (floor_x - floor_x.floor())) as u32 & (texture.width() - 1);
-                let ty = (texture.height() as f64 * (floor_y - floor_y.floor())) as u32 & (texture.height() - 1);
+                let floor_tx = (floor_texture.width() as f64 * (floor_x - floor_x.floor())) as u32 & (floor_texture.width() - 1);
+                let floor_ty = (floor_texture.height() as f64 * (floor_y - floor_y.floor())) as u32 & (floor_texture.height() - 1);
+                let ceiling_tx = (ceiling_texture.width() as f64 * (floor_x - floor_x.floor())) as u32 & (ceiling_texture.width() - 1);
+                let ceiling_ty = (ceiling_texture.height() as f64 * (floor_y - floor_y.floor())) as u32 & (ceiling_texture.height() - 1);
 
                 floor_x += step_x;
                 floor_y += step_y;
 
-                let color = Color::from_rgba_arr(texture.get(tx, ty));
+                let color = Color::from_rgba_arr(floor_texture.get(floor_tx, floor_ty));
                 self.draw_pixel(color, x, y);
 
-                let color = Color::from_rgba_arr(map.ceiling.get(tx, ty));
+                let color = Color::from_rgba_arr(ceiling_texture.get(ceiling_tx, ceiling_ty));
                 self.draw_pixel(color, x, self.height - y - 1);
             }
         }

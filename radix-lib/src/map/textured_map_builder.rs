@@ -11,6 +11,7 @@ pub struct TexturedMapBuilder {
     floor_path: String,
     floor_texture_map: HashMap<u32, String>, // colour -> texture path
     ceiling_path: String,
+    ceiling_texture_map: HashMap<u32, String>, // colour -> texture path
 }
 
 impl TexturedMapBuilder {
@@ -61,6 +62,26 @@ impl TexturedMapBuilder {
                 let color = (pixel[0] as u32) << 24 | (pixel[1] as u32) << 16 | (pixel[2] as u32) << 8 | (pixel[3] as u32);
                 let texture = floor_textures.get(&color);
                 floor.push(texture.cloned());
+            }
+        }
+
+        // once again, we do the same for the ceiling
+        let mut ceiling_textures = HashMap::new();
+        for (color, path) in &self.ceiling_texture_map {
+            ceiling_textures.insert(*color, Rc::new(Texture::new(path)));
+        }
+
+        let ceiling_texture = image::open(&self.ceiling_path).unwrap().into_rgba8();
+        let width = ceiling_texture.width();
+        let height = ceiling_texture.height();
+        let mut ceiling = Vec::new();
+        for y in 0..height {
+            for x in 0..width {
+                let pixel = ceiling_texture.get_pixel(x, y);
+                // color in rgba format
+                let color = (pixel[0] as u32) << 24 | (pixel[1] as u32) << 16 | (pixel[2] as u32) << 8 | (pixel[3] as u32);
+                let texture = ceiling_textures.get(&color);
+                ceiling.push(texture.cloned());
             }
         }
 

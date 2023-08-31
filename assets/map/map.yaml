@@ -17,8 +17,8 @@ floor_texture_map:
   2745382655: assets/textures/Texture173.png
   1221578751: assets/textures/Texture65.png
   1124101887: assets/textures/Texture330.png
-ceiling_path: assets/textures/ceiling.png
-ceiling_textre_map:
+ceiling_path: assets/map/ceiling.png
+ceiling_texture_map:
   1912602879: assets/textures/Texture165.png
   1845522175: assets/textures/Texture36.png
   2745382655: assets/textures/Texture177.png
