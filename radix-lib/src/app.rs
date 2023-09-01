@@ -100,27 +100,9 @@ impl App {
                 g.game.render();
             },
             |g, event| {
-                if g.game.input.update(event) {
-                    // Close events
-                    if g.game.input.key_pressed(VirtualKeyCode::Escape)
-                        || g.game.input.close_requested()
-                        || g.game.input.destroyed()
-                    {
-                        g.exit();
-                        return;
-                    }
-
-                    // TODO: add a better way to switch scenes (probs with scripting, when thats a thing)
-                    if g.game.input.key_pressed(VirtualKeyCode::Space) {
-                        let current_scene = g.game.current_scene;
-                        let next_scene = (current_scene + 1) % g.game.scenes.len();
-                        info!(
-                            "Switching from scene {} to scene {}",
-                            current_scene, next_scene
-                        );
-                        g.game.current_scene = next_scene;
-                    }
-                }
+                if !g.game.handle_event(event) {
+                    g.exit();
+                };
             },
         );
     }
@@ -180,18 +162,27 @@ impl App {
         renderer.render();
     }
 
-    fn handle_event(&self, event: &Event<()>) -> bool {
-        match event {
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => {
-                    info!("Close requested, exiting...");
-                    return false;
-                }
-                _ => {}
-            },
-            _ => {}
-        }
+    fn handle_event(&mut self, event: &Event<()>) -> bool {
+        if self.input.update(event) {
+            // Close events
+            if self.input.key_pressed(VirtualKeyCode::Escape)
+                || self.input.close_requested()
+                || self.input.destroyed()
+            {
+                return false;
+            }
 
+            // TODO: add a better way to switch scenes (probs with scripting, when thats a thing)
+            if self.input.key_pressed(VirtualKeyCode::Space) {
+                let current_scene = self.current_scene;
+                let next_scene = (current_scene + 1) % self.scenes.len();
+                info!(
+                    "Switching from scene {} to scene {}",
+                    current_scene, next_scene
+                );
+                self.current_scene = next_scene;
+            }
+        }
         true
     }
 }
