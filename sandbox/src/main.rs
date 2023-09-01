@@ -4,7 +4,6 @@ use radix_lib::{
 
 // Entry point of the program
 fn main() {
-    pretty_env_logger::init();
     let scene0_map = MapBuilder::load("assets/map/map.yaml").build();
 
     let window = Window::with_title(1280, 720, 1, "Sandbox Window");

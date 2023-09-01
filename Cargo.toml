@@ -3,3 +3,4 @@ members = [
     "radix-lib",
     "sandbox"
 ]
+resolver = "2"

@@ -7,7 +7,9 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 
-use crate::{renderer::Renderer, scene::Scene, util::color::Color, window::Window};
+use crate::{
+    renderer::Renderer, scene::Scene, scripting::engine::Engine, util::color::Color, window::Window,
+};
 
 /// The base struct for the engine. Uses the 'Builder Pattern' to be constructed
 pub struct App {
@@ -46,6 +48,13 @@ impl App {
 
     /// The final function called after defining the app.
     pub fn run(mut self) {
+        env_logger::init();
+
+        // TEST
+        let script_path = "assets/scripts/test.lua";
+        let engine = Engine::new(script_path);
+        engine.test();
+
         // we must first create a window, and then pass it to the renderer.
         // this uses the infomation provided from our own Window wrapper struct.
         let event_loop = EventLoop::new();
