@@ -14,5 +14,7 @@ mlua = { version = "0.9.1", features = [ "vendored", "lua54" ] }
 pixels = "0.13.0"
 serde = { version = "1.0.186", features = [ "derive" ] }
 serde_yaml = "0.9.25"
+strum = "0.25.0"
+strum_macros = "0.25.2"
 winit = "0.28.6"
 winit_input_helper = "0.14.1"

@@ -3,5 +3,10 @@ function start()
 end
 
 function update()
-    info("Update!")
+    if key_pressed("A") then
+        info("A pressed")
+    end
+    if key_released("A") then
+        info("A released")
+    end
 end

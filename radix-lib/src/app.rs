@@ -158,10 +158,6 @@ impl App {
         // self.camera.add_position(0.01, 0.01);
         let current_scene = &mut self.scenes[self.current_scene];
         current_scene.update(&self.input);
-
-        if let Some(engine) = &self.script_engine {
-            engine.update();
-        }
     }
 
     fn render(&mut self) {
@@ -177,6 +173,12 @@ impl App {
     }
 
     fn handle_event(&mut self, event: &Event<()>) -> bool {
+        if let Some(engine) = &self.script_engine {
+            if engine.update_input(event) {
+                engine.update();
+            }
+        }
+
         if self.input.update(event) {
             // Close events
             if self.input.key_pressed(VirtualKeyCode::Escape)
