@@ -5,12 +5,12 @@ use serde::{Deserialize, Serialize};
 use super::{sprite::Sprite, texture::Texture};
 
 pub struct TexturedMap {
-    pub(crate) width: u32,
-    pub(crate) height: u32,
-    pub(crate) walls: Vec<Option<Rc<Texture>>>,
-    pub(crate) floor: Vec<Option<Rc<Texture>>>,
-    pub(crate) ceiling: Vec<Option<Rc<Texture>>>,
-    pub(crate) sprites: Vec<Rc<RefCell<Sprite>>>,
+    width: u32,
+    height: u32,
+    walls: Vec<Option<Rc<Texture>>>,
+    floor: Vec<Option<Rc<Texture>>>,
+    ceiling: Vec<Option<Rc<Texture>>>,
+    sprites: Vec<Rc<RefCell<Sprite>>>,
 }
 
 // TODO: Write deserlaize and serialize for TexturedMap
@@ -68,5 +68,9 @@ impl TexturedMap {
 
     pub fn get_ceiling(&self, x: u32, y: u32) -> Option<Rc<Texture>> {
         self.ceiling[(y.min(self.height - 1) * self.width + x.min(self.width - 1)) as usize].clone()
+    }
+
+    pub fn sprites(&self) -> Vec<Rc<RefCell<Sprite>>> {
+        self.sprites.clone()
     }
 }

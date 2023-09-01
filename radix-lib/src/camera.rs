@@ -1,14 +1,16 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+use crate::player::Player;
+
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Camera {
-    pub(crate) pos_x: f64,
-    pub(crate) pos_y: f64,
-    pub(crate) dir_x: f64,
-    pub(crate) dir_y: f64,
-    pub(crate) plane_x: f64,
-    pub(crate) plane_y: f64,
-    pub(crate) aspect_ratio: f64,
+    pos_x: f64,
+    pos_y: f64,
+    dir_x: f64,
+    dir_y: f64,
+    plane_x: f64,
+    plane_y: f64,
+    aspect_ratio: f64,
 }
 
 impl Camera {
@@ -20,22 +22,44 @@ impl Camera {
             dir_y: 0.0,
             plane_x: 0.0,
             plane_y: aspect_ratio / 2.0,
-            aspect_ratio
+            aspect_ratio,
         }
     }
 
-    pub fn add_position(&mut self, x: f64, y: f64) {
-        self.pos_x += x * self.dir_x;
-        self.pos_y += y * self.dir_y;
+    pub fn pos_x(&self) -> f64 {
+        self.pos_x
     }
 
-    /// Rotates the camera by the given angle in radians.
-    pub fn add_direction(&mut self, a: f64) {
-        let old_dir_x = self.dir_x;
-        self.dir_x = self.dir_x * a.cos() - self.dir_y * a.sin();
-        self.dir_y = old_dir_x * a.sin() + self.dir_y * a.cos();
-        let old_plane_x = self.plane_x;
-        self.plane_x = self.plane_x * a.cos() - self.plane_y * a.sin();
-        self.plane_y = old_plane_x * a.sin() + self.plane_y * a.cos();
+    pub fn pos_y(&self) -> f64 {
+        self.pos_y
+    }
+
+    pub fn dir_x(&self) -> f64 {
+        self.dir_x
+    }
+
+    pub fn dir_y(&self) -> f64 {
+        self.dir_y
+    }
+
+    pub fn plane_x(&self) -> f64 {
+        self.plane_x
+    }
+
+    pub fn plane_y(&self) -> f64 {
+        self.plane_y
+    }
+
+    pub fn aspect_ratio(&self) -> f64 {
+        self.aspect_ratio
+    }
+
+    pub fn set_from_player(&mut self, player: Player) {
+        self.pos_x = player.pos_x();
+        self.pos_y = player.pos_y();
+        self.dir_x = player.dir().cos();
+        self.dir_y = player.dir().sin();
+        self.plane_x = player.dir().sin() * self.aspect_ratio() / 2.0;
+        self.plane_y = -player.dir().cos() * self.aspect_ratio() / 2.0;
     }
 }

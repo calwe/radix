@@ -1,8 +1,12 @@
 use std::fs;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use winit_input_helper::WinitInputHelper;
 
-use crate::{player::Player, map::colored_map::ColoredMap, map::textured_map::TexturedMap, util::color::Color};
+use crate::{
+    map::colored_map::ColoredMap, map::textured_map::TexturedMap, player::Player,
+    util::color::Color,
+};
 
 const SAVE_PATH: &str = "scenes";
 
@@ -24,8 +28,8 @@ impl Map {
 #[derive(Serialize, Deserialize)]
 pub struct Scene {
     name: String,
-    pub(crate) player: Player,
-    pub(crate) map: Map,
+    player: Player,
+    map: Map,
 }
 
 impl Scene {
@@ -43,5 +47,17 @@ impl Scene {
         fs::create_dir_all(SAVE_PATH)?;
         fs::write(format!("{}/{}.yaml", SAVE_PATH, self.name), serialized)?;
         Ok(())
+    }
+
+    pub fn update(&mut self, input: &WinitInputHelper) {
+        self.player.update(input, &self.map);
+    }
+
+    pub fn player(&self) -> &Player {
+        &self.player
+    }
+
+    pub fn map(&self) -> &Map {
+        &self.map
     }
 }

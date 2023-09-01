@@ -85,13 +85,13 @@ impl Renderer {
             let camera_x = (2 * x) as f64 / self.width as f64 - 1.0;
 
             // now we calculate the ray direction.
-            let ray_dir_x = camera.dir_x + camera.plane_x * camera_x;
-            let ray_dir_y = camera.dir_y + camera.plane_y * camera_x;
+            let ray_dir_x = camera.dir_x() + camera.plane_x() * camera_x;
+            let ray_dir_y = camera.dir_y() + camera.plane_y() * camera_x;
 
             // we also need to know which sqaure of the map we are in
             // this is done by truncating the camera's position.
-            let mut map_x = camera.pos_x as i32;
-            let mut map_y = camera.pos_y as i32;
+            let mut map_x = camera.pos_x() as i32;
+            let mut map_y = camera.pos_y() as i32;
 
             // next we need the distance the ray has to travel to go from one x or y side to the next.
             // this is done using the pythagorean theorem; however, this can be simplified, as we only
@@ -110,18 +110,18 @@ impl Renderer {
             // to calculate these values, we need to know which direction the ray is travelling in.
             if ray_dir_x < 0.0 {
                 step_x = -1;
-                side_dist_x = (camera.pos_x - map_x as f64) * delta_dist_x;
+                side_dist_x = (camera.pos_x() - map_x as f64) * delta_dist_x;
             } else {
                 step_x = 1;
-                side_dist_x = (map_x as f64 + 1.0 - camera.pos_x) * delta_dist_x;
+                side_dist_x = (map_x as f64 + 1.0 - camera.pos_x()) * delta_dist_x;
             }
 
             if ray_dir_y < 0.0 {
                 step_y = -1;
-                side_dist_y = (camera.pos_y - map_y as f64) * delta_dist_y;
+                side_dist_y = (camera.pos_y() - map_y as f64) * delta_dist_y;
             } else {
                 step_y = 1;
-                side_dist_y = (map_y as f64 + 1.0 - camera.pos_y) * delta_dist_y;
+                side_dist_y = (map_y as f64 + 1.0 - camera.pos_y()) * delta_dist_y;
             }
 
             // now that we have all the values we need, we can start the DDA loop.
@@ -181,13 +181,13 @@ impl Renderer {
             let camera_x = (2 * x) as f64 / self.width as f64 - 1.0;
 
             // now we calculate the ray direction.
-            let ray_dir_x = camera.dir_x + camera.plane_x * camera_x;
-            let ray_dir_y = camera.dir_y + camera.plane_y * camera_x;
+            let ray_dir_x = camera.dir_x() + camera.plane_x() * camera_x;
+            let ray_dir_y = camera.dir_y() + camera.plane_y() * camera_x;
 
             // we also need to know which sqaure of the map we are in
             // this is done by truncating the camera's position.
-            let mut map_x = camera.pos_x as i32;
-            let mut map_y = camera.pos_y as i32;
+            let mut map_x = camera.pos_x() as i32;
+            let mut map_y = camera.pos_y() as i32;
 
             // next we need the distance the ray has to travel to go from one x or y side to the next.
             // this is done using the pythagorean theorem; however, this can be simplified, as we only
@@ -206,18 +206,18 @@ impl Renderer {
             // to calculate these values, we need to know which direction the ray is travelling in.
             if ray_dir_x < 0.0 {
                 step_x = -1;
-                side_dist_x = (camera.pos_x - map_x as f64) * delta_dist_x;
+                side_dist_x = (camera.pos_x() - map_x as f64) * delta_dist_x;
             } else {
                 step_x = 1;
-                side_dist_x = (map_x as f64 + 1.0 - camera.pos_x) * delta_dist_x;
+                side_dist_x = (map_x as f64 + 1.0 - camera.pos_x()) * delta_dist_x;
             }
 
             if ray_dir_y < 0.0 {
                 step_y = -1;
-                side_dist_y = (camera.pos_y - map_y as f64) * delta_dist_y;
+                side_dist_y = (camera.pos_y() - map_y as f64) * delta_dist_y;
             } else {
                 step_y = 1;
-                side_dist_y = (map_y as f64 + 1.0 - camera.pos_y) * delta_dist_y;
+                side_dist_y = (map_y as f64 + 1.0 - camera.pos_y()) * delta_dist_y;
             }
 
             // now that we have all the values we need, we can start the DDA loop.
@@ -258,9 +258,9 @@ impl Renderer {
             let texture = map.get(map_x as u32, map_y as u32).unwrap();
 
             let wall_x = if side == 0 {
-                camera.pos_y + perp_wall_distance * ray_dir_y
+                camera.pos_y() + perp_wall_distance * ray_dir_y
             } else {
-                camera.pos_x + perp_wall_distance * ray_dir_x
+                camera.pos_x() + perp_wall_distance * ray_dir_x
             };
             let wall_x = wall_x - wall_x.floor();
 
@@ -292,11 +292,11 @@ impl Renderer {
     pub fn draw_floor_and_ceiling(&mut self, camera: &Camera, map: &TexturedMap) {
         for y in 0..self.height {
             // left ray
-            let ray_dir_x0 = camera.dir_x - camera.plane_x;
-            let ray_dir_y0 = camera.dir_y - camera.plane_y;
+            let ray_dir_x0 = camera.dir_x() - camera.plane_x();
+            let ray_dir_y0 = camera.dir_y() - camera.plane_y();
             // right ray
-            let ray_dir_x1 = camera.dir_x + camera.plane_x;
-            let ray_dir_y1 = camera.dir_y + camera.plane_y;
+            let ray_dir_x1 = camera.dir_x() + camera.plane_x();
+            let ray_dir_y1 = camera.dir_y() + camera.plane_y();
 
             // current y position compared to the center of the screen (the horizon)
             let pos_y = y as f64 - self.height as f64 / 2.0;
@@ -313,8 +313,8 @@ impl Renderer {
             let step_y = row_distance * (ray_dir_y1 - ray_dir_y0) / self.width as f64;
 
             // real world coordinates of the leftmost column. This will be updated as we step to the right.
-            let mut floor_x = camera.pos_x + row_distance * ray_dir_x0;
-            let mut floor_y = camera.pos_y + row_distance * ray_dir_y0;
+            let mut floor_x = camera.pos_x() + row_distance * ray_dir_x0;
+            let mut floor_y = camera.pos_y() + row_distance * ray_dir_y0;
 
             for x in 0..self.width {
                 // the cell coord is simply got from the integer parts of floor_x and floor_y
@@ -355,29 +355,31 @@ impl Renderer {
     }
 
     pub fn draw_sprites(&mut self, camera: &Camera, map: &TexturedMap) {
-        let mut sprites = map.sprites.clone();
+        let mut sprites = map.sprites().clone();
         sprites.sort_by(|a, b| {
             let a_x = a.borrow().pos_x();
             let a_y = a.borrow().pos_y();
             let b_x = b.borrow().pos_x();
             let b_y = b.borrow().pos_y();
 
-            let a_dist = (camera.pos_x - a_x).powi(2) + (camera.pos_y - a_y).powi(2);
-            let b_dist = (camera.pos_x - b_x).powi(2) + (camera.pos_y - b_y).powi(2);
+            let a_dist = (camera.pos_x() - a_x).powi(2) + (camera.pos_y() - a_y).powi(2);
+            let b_dist = (camera.pos_x() - b_x).powi(2) + (camera.pos_y() - b_y).powi(2);
 
             b_dist.partial_cmp(&a_dist).unwrap()
         });
 
         for sprite in sprites {
             let sprite = sprite.borrow();
-            let sprite_x = sprite.pos_x() - camera.pos_x;
-            let sprite_y = sprite.pos_y() - camera.pos_y;
+            let sprite_x = sprite.pos_x() - camera.pos_x();
+            let sprite_y = sprite.pos_y() - camera.pos_y();
 
             // transform sprite with the inverse camera matrix
-            let inv_det = 1.0 / (camera.plane_x * camera.dir_y - camera.dir_x * camera.plane_y);
+            let inv_det =
+                1.0 / (camera.plane_x() * camera.dir_y() - camera.dir_x() * camera.plane_y());
 
-            let transform_x = inv_det * (camera.dir_y * sprite_x - camera.dir_x * sprite_y);
-            let transform_y = inv_det * (-camera.plane_y * sprite_x + camera.plane_x * sprite_y);
+            let transform_x = inv_det * (camera.dir_y() * sprite_x - camera.dir_x() * sprite_y);
+            let transform_y =
+                inv_det * (-camera.plane_y() * sprite_x + camera.plane_x() * sprite_y);
 
             let sprite_screen_x =
                 ((self.width as f64 / 2.0) * (1.0 + transform_x / transform_y)) as i32;

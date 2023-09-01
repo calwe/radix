@@ -4,9 +4,9 @@ use crate::util::color::Color;
 
 #[derive(Serialize, Deserialize)]
 pub struct ColoredMap {
-    pub(crate) width: u32,
-    pub(crate) height: u32,
-    pub(crate) data: Vec<Color>,
+    width: u32,
+    height: u32,
+    data: Vec<Color>,
 }
 
 impl ColoredMap {

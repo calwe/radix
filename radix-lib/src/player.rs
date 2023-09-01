@@ -2,16 +2,16 @@ use serde::{Deserialize, Serialize};
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{camera::Camera, window::Window, scene::Map};
+use crate::{camera::Camera, scene::Map, window::Window};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Player {
-    pub(crate) camera: Camera,
-    pub(crate) pos_x: f64,
-    pub(crate) pos_y: f64,
-    pub(crate) dir: f64,
-    pub(crate) speed: f64,
-    pub(crate) turn_speed: f64,
+    camera: Camera,
+    pos_x: f64,
+    pos_y: f64,
+    dir: f64,
+    speed: f64,
+    turn_speed: f64,
     window_width: u32,
 }
 
@@ -24,10 +24,38 @@ impl Player {
             dir: 0.0,
             speed,
             turn_speed,
-            window_width: window.width,
+            window_width: window.width(),
         }
     }
-    
+
+    pub fn camera(&self) -> &Camera {
+        &self.camera
+    }
+
+    pub fn pos_x(&self) -> f64 {
+        self.pos_x
+    }
+
+    pub fn pos_y(&self) -> f64 {
+        self.pos_y
+    }
+
+    pub fn dir(&self) -> f64 {
+        self.dir
+    }
+
+    pub fn speed(&self) -> f64 {
+        self.speed
+    }
+
+    pub fn turn_speed(&self) -> f64 {
+        self.turn_speed
+    }
+
+    pub fn window_width(&self) -> u32 {
+        self.window_width
+    }
+
     pub fn update(&mut self, input: &WinitInputHelper, map: &Map) {
         if input.key_held(VirtualKeyCode::W) {
             let x_diff = self.speed * self.dir.cos();
@@ -70,14 +98,10 @@ impl Player {
             }
         }
 
-        let mouse_diff = input.mouse().unwrap_or((0.0, 0.0)).0 as f64 - self.window_width as f64 / 2.0;
+        let mouse_diff =
+            input.mouse().unwrap_or((0.0, 0.0)).0 as f64 - self.window_width as f64 / 2.0;
         self.dir -= self.turn_speed * 0.1 * mouse_diff;
 
-        self.camera.pos_x = self.pos_x;
-        self.camera.pos_y = self.pos_y;
-        self.camera.dir_x = self.dir.cos();
-        self.camera.dir_y = self.dir.sin();
-        self.camera.plane_x = self.dir.sin() * self.camera.aspect_ratio / 2.0;
-        self.camera.plane_y = -self.dir.cos() * self.camera.aspect_ratio / 2.0;
+        self.camera.set_from_player(*self);
     }
 }
