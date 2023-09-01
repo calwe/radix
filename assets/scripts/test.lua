@@ -1,5 +1,0 @@
-trace("tracing from lua")
-debug("debug from lua")
-info("info from lua")
-warn("warn from lua")
-error("error from lua")

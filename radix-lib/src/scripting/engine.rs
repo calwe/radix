@@ -1,22 +1,20 @@
 use crate::scripting::log::{debug, error, info, trace, warn};
-use mlua::Lua;
+use mlua::{Function, Lua};
 
 pub struct Engine {
     lua: Lua,
-    script_path: String,
+    script: String,
 }
 
 impl Engine {
-    pub fn new(script_path: &str) -> Self {
+    pub fn new() -> Self {
         Self {
             lua: Lua::new(),
-            script_path: script_path.to_string(),
+            script: String::new(),
         }
     }
 
-    pub fn test(&self) {
-        let script = std::fs::read_to_string(&self.script_path).unwrap();
-
+    pub fn load_globals(&self) {
         let trace = self.lua.create_function(trace).unwrap();
         let debug = self.lua.create_function(debug).unwrap();
         let info = self.lua.create_function(info).unwrap();
@@ -28,7 +26,20 @@ impl Engine {
         self.lua.globals().set("info", info).unwrap();
         self.lua.globals().set("warn", warn).unwrap();
         self.lua.globals().set("error", error).unwrap();
+    }
 
-        self.lua.load(&script).exec().unwrap();
+    pub fn load_script(&mut self, path: &str) {
+        self.script = std::fs::read_to_string(path).unwrap();
+        self.lua.load(&self.script).exec().unwrap();
+    }
+
+    pub fn start(&self) {
+        let start: Function = self.lua.globals().get("start").unwrap();
+        start.call::<(), ()>(()).unwrap();
+    }
+
+    pub fn update(&self) {
+        let update: Function = self.lua.globals().get("update").unwrap();
+        update.call::<(), ()>(()).unwrap();
     }
 }

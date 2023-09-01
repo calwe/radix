@@ -20,6 +20,7 @@ pub struct App {
     window: Window,
     renderer: Option<Renderer>,
     input: WinitInputHelper,
+    script_engine: Option<Engine>,
     scenes: Vec<Scene>,
     current_scene: usize,
 }
@@ -34,6 +35,7 @@ impl Default for App {
             window: Window::new(800, 600, 1),
             renderer: None,
             input: WinitInputHelper::new(),
+            script_engine: None,
             scenes: Vec::new(),
             current_scene: 0,
         }
@@ -50,11 +52,6 @@ impl App {
     pub fn run(mut self) {
         env_logger::init();
 
-        // TEST
-        let script_path = "assets/scripts/test.lua";
-        let engine = Engine::new(script_path);
-        engine.test();
-
         // we must first create a window, and then pass it to the renderer.
         // this uses the infomation provided from our own Window wrapper struct.
         let event_loop = EventLoop::new();
@@ -68,6 +65,12 @@ impl App {
             .build(&event_loop)
             .unwrap();
         self.renderer = Some(Renderer::new(&window, self.window.scale()));
+
+        // load the script engines globals, and call start
+        if let Some(engine) = &mut self.script_engine {
+            engine.load_globals();
+            engine.start();
+        }
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
@@ -134,6 +137,14 @@ impl App {
         self
     }
 
+    /// Sets a main script for the app
+    pub fn script_path(mut self, script_path: &str) -> Self {
+        let mut engine = Engine::new();
+        engine.load_script(script_path);
+        self.script_engine = Some(engine);
+        self
+    }
+
     /// Adds a scene to the app
     pub fn add_scene(mut self, scene: Scene) -> Self {
         self.scenes.push(scene);
@@ -147,6 +158,10 @@ impl App {
         // self.camera.add_position(0.01, 0.01);
         let current_scene = &mut self.scenes[self.current_scene];
         current_scene.update(&self.input);
+
+        if let Some(engine) = &self.script_engine {
+            engine.update();
+        }
     }
 
     fn render(&mut self) {
