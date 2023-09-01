@@ -3,7 +3,7 @@ use std::fs;
 use serde::{Deserialize, Serialize};
 use winit_input_helper::WinitInputHelper;
 
-use crate::{map::Map, player::Player, util::color::Color};
+use crate::{map::Map, player::Player};
 
 const SAVE_PATH: &str = "scenes";
 

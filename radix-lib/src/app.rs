@@ -1,27 +1,13 @@
-use std::{collections::HashMap, fs::File, io::Write};
-
 use game_loop::game_loop;
-use log::{info, trace};
+use log::info;
 use winit::{
     dpi::{LogicalPosition, LogicalSize},
-    event::{Event, VirtualKeyCode, WindowEvent},
+    event::{Event, VirtualKeyCode},
     event_loop::EventLoop,
-    window::CursorGrabMode,
 };
 use winit_input_helper::WinitInputHelper;
 
-use crate::{
-    camera::Camera, map::Map, player::Player, renderer::Renderer, scene::Scene, util::color::Color,
-    window::Window,
-};
-
-const R: u32 = 0xFF0000FF;
-const G: u32 = 0x00FF00FF;
-const A: u32 = 0xFFFFFFFF;
-const DEFAULT_MAP: [u32; 64] = [
-    R, R, R, R, R, R, R, R, R, A, A, A, A, A, A, R, R, A, G, A, A, A, A, R, R, A, A, A, A, A, A, R,
-    R, A, A, A, A, A, A, R, R, A, A, A, A, A, A, R, R, A, A, A, A, A, A, R, R, R, R, R, R, R, R, R,
-];
+use crate::{renderer::Renderer, scene::Scene, util::color::Color, window::Window};
 
 /// The base struct for the engine. Uses the 'Builder Pattern' to be constructed
 pub struct App {

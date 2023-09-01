@@ -1,11 +1,10 @@
-use std::{cell::RefCell, rc::Rc};
+use std::rc::Rc;
 
-use log::trace;
 use pixels::{Pixels, SurfaceTexture};
 
 use crate::{
     camera::Camera,
-    map::{sprite, texture::Texture, Map},
+    map::{texture::Texture, Map},
     util::color::Color,
 };
 

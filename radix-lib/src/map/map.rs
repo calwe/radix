@@ -15,7 +15,7 @@ pub struct Map {
 
 // TODO: Write deserlaize and serialize for TexturedMap
 impl Serialize for Map {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
@@ -24,7 +24,7 @@ impl Serialize for Map {
 }
 
 impl<'de> Deserialize<'de> for Map {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
