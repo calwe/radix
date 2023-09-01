@@ -11,12 +11,7 @@ use winit::{
 use winit_input_helper::WinitInputHelper;
 
 use crate::{
-    camera::Camera,
-    map::{colored_map::ColoredMap, textured_map_builder::TexturedMapBuilder},
-    player::Player,
-    renderer::Renderer,
-    scene::{Map, Scene},
-    util::color::Color,
+    camera::Camera, map::Map, player::Player, renderer::Renderer, scene::Scene, util::color::Color,
     window::Window,
 };
 
@@ -180,14 +175,7 @@ impl App {
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        match &current_scene.map() {
-            Map::Colored(map) => {
-                renderer.draw_frame_colored_map(&current_scene.player().camera(), map)
-            }
-            Map::Textured(map) => {
-                renderer.draw_frame_textured_map(&current_scene.player().camera(), map)
-            }
-        }
+        renderer.draw_frame_textured_map(&current_scene.player().camera(), current_scene.map());
 
         renderer.render();
     }

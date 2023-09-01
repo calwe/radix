@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use super::{sprite::Sprite, texture::Texture};
 
-pub struct TexturedMap {
+pub struct Map {
     width: u32,
     height: u32,
     walls: Vec<Option<Rc<Texture>>>,
@@ -14,7 +14,7 @@ pub struct TexturedMap {
 }
 
 // TODO: Write deserlaize and serialize for TexturedMap
-impl Serialize for TexturedMap {
+impl Serialize for Map {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
@@ -23,7 +23,7 @@ impl Serialize for TexturedMap {
     }
 }
 
-impl<'de> Deserialize<'de> for TexturedMap {
+impl<'de> Deserialize<'de> for Map {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
@@ -32,7 +32,7 @@ impl<'de> Deserialize<'de> for TexturedMap {
     }
 }
 
-impl TexturedMap {
+impl Map {
     pub fn with_data(
         width: u32,
         height: u32,
@@ -55,7 +55,7 @@ impl TexturedMap {
         self.walls[(y * self.width + x) as usize] = Some(texture);
     }
 
-    pub fn get(&self, x: u32, y: u32) -> Option<Rc<Texture>> {
+    pub fn get_wall(&self, x: u32, y: u32) -> Option<Rc<Texture>> {
         self.walls
             .get((y * self.width + x) as usize)
             .unwrap()

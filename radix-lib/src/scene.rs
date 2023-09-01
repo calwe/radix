@@ -3,27 +3,9 @@ use std::fs;
 use serde::{Deserialize, Serialize};
 use winit_input_helper::WinitInputHelper;
 
-use crate::{
-    map::colored_map::ColoredMap, map::textured_map::TexturedMap, player::Player,
-    util::color::Color,
-};
+use crate::{map::Map, player::Player, util::color::Color};
 
 const SAVE_PATH: &str = "scenes";
-
-#[derive(Serialize, Deserialize)]
-pub enum Map {
-    Colored(ColoredMap),
-    Textured(TexturedMap),
-}
-
-impl Map {
-    pub fn get_is_none(&self, x: u32, y: u32) -> bool {
-        match self {
-            Map::Colored(map) => map.get(x, y) == Color::from_rgb_hex(0),
-            Map::Textured(map) => map.get(x, y).is_none(),
-        }
-    }
-}
 
 #[derive(Serialize, Deserialize)]
 pub struct Scene {

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use winit::event::VirtualKeyCode;
 use winit_input_helper::WinitInputHelper;
 
-use crate::{camera::Camera, scene::Map, window::Window};
+use crate::{camera::Camera, map::Map, window::Window};
 
 #[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Player {
@@ -60,40 +60,64 @@ impl Player {
         if input.key_held(VirtualKeyCode::W) {
             let x_diff = self.speed * self.dir.cos();
             let y_diff = self.speed * self.dir.sin();
-            if map.get_is_none((self.pos_x + x_diff) as u32, self.pos_y as u32) {
+            if map
+                .get_wall((self.pos_x + x_diff) as u32, self.pos_y as u32)
+                .is_none()
+            {
                 self.pos_x += x_diff;
             }
-            if map.get_is_none(self.pos_x as u32, (self.pos_y + y_diff) as u32) {
+            if map
+                .get_wall(self.pos_x as u32, (self.pos_y + y_diff) as u32)
+                .is_none()
+            {
                 self.pos_y += y_diff;
             }
         }
         if input.key_held(VirtualKeyCode::S) {
             let x_diff = self.speed * self.dir.cos();
             let y_diff = self.speed * self.dir.sin();
-            if map.get_is_none((self.pos_x - x_diff) as u32, self.pos_y as u32) {
+            if map
+                .get_wall((self.pos_x - x_diff) as u32, self.pos_y as u32)
+                .is_none()
+            {
                 self.pos_x -= x_diff;
             }
-            if map.get_is_none(self.pos_x as u32, (self.pos_y - y_diff) as u32) {
+            if map
+                .get_wall(self.pos_x as u32, (self.pos_y - y_diff) as u32)
+                .is_none()
+            {
                 self.pos_y -= y_diff;
             }
         }
         if input.key_held(VirtualKeyCode::A) {
             let x_diff = self.speed * self.dir.sin();
             let y_diff = self.speed * self.dir.cos();
-            if map.get_is_none((self.pos_x - x_diff) as u32, self.pos_y as u32) {
+            if map
+                .get_wall((self.pos_x - x_diff) as u32, self.pos_y as u32)
+                .is_none()
+            {
                 self.pos_x -= x_diff;
             }
-            if map.get_is_none(self.pos_x as u32, (self.pos_y + y_diff) as u32) {
+            if map
+                .get_wall(self.pos_x as u32, (self.pos_y + y_diff) as u32)
+                .is_none()
+            {
                 self.pos_y += y_diff;
             }
         }
         if input.key_held(VirtualKeyCode::D) {
             let x_diff = self.speed * self.dir.sin();
             let y_diff = self.speed * self.dir.cos();
-            if map.get_is_none((self.pos_x + x_diff) as u32, self.pos_y as u32) {
+            if map
+                .get_wall((self.pos_x + x_diff) as u32, self.pos_y as u32)
+                .is_none()
+            {
                 self.pos_x += x_diff;
             }
-            if map.get_is_none(self.pos_x as u32, (self.pos_y - y_diff) as u32) {
+            if map
+                .get_wall(self.pos_x as u32, (self.pos_y - y_diff) as u32)
+                .is_none()
+            {
                 self.pos_y -= y_diff;
             }
         }

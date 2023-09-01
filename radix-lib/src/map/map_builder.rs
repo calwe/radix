@@ -2,10 +2,10 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use serde::{Deserialize, Serialize};
 
-use super::{sprite::Sprite, texture::Texture, textured_map::TexturedMap};
+use super::{map::Map, sprite::Sprite, texture::Texture};
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct TexturedMapBuilder {
+pub struct MapBuilder {
     walls_path: String,
     walls_texture_map: HashMap<u32, String>, // colour -> texture path
     floor_path: String,
@@ -15,13 +15,13 @@ pub struct TexturedMapBuilder {
     sprites: Vec<(f64, f64, f64, f64, f64, String)>, // x, y, z, scale_x, scale_y, texture path
 }
 
-impl TexturedMapBuilder {
+impl MapBuilder {
     pub fn load(path: &str) -> Self {
         let contents = std::fs::read_to_string(path).unwrap();
         serde_yaml::from_str(&contents).unwrap()
     }
 
-    pub fn build(&self) -> TexturedMap {
+    pub fn build(&self) -> Map {
         // first we will turn our walls texture hashmap into one of <u32, Rc<Texture>>
         let mut wall_textures = HashMap::new();
         for (color, path) in &self.walls_texture_map {
@@ -109,6 +109,6 @@ impl TexturedMapBuilder {
         }
 
         // finally we turn this into our TexturedMap
-        TexturedMap::with_data(width, height, walls, floor, ceiling, sprites)
+        Map::with_data(width, height, walls, floor, ceiling, sprites)
     }
 }

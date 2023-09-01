@@ -1,5 +1,6 @@
-pub mod colored_map;
+pub mod map;
+pub mod map_builder;
 pub mod sprite;
-pub mod textured_map;
-pub mod textured_map_builder;
 pub mod texture;
+
+pub use map::Map;
