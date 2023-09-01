@@ -262,7 +262,7 @@ impl Renderer {
     }
 
     pub fn draw_sprites(&mut self, camera: &Camera, map: &Map) {
-        let mut sprites = map.sprites().clone();
+        let mut sprites = map.sprites();
         sprites.sort_by(|a, b| {
             let a_x = a.borrow().pos_x();
             let a_y = a.borrow().pos_y();
@@ -303,20 +303,20 @@ impl Renderer {
 
             // calculate lowest and highest pixel to fill in current stripe
             let draw_start_y =
-                ((-sprite_height as i32 / 2 + self.height as i32 / 2) + pos_z_screen).max(0);
-            let draw_end_y = ((sprite_height as i32 / 2 + self.height as i32 / 2) + pos_z_screen)
+                ((-sprite_height / 2 + self.height as i32 / 2) + pos_z_screen).max(0);
+            let draw_end_y = ((sprite_height / 2 + self.height as i32 / 2) + pos_z_screen)
                 .min(self.height as i32);
 
             // calculate width of the sprite
             let sprite_width = ((self.height as f64 / transform_y).abs() * sprite.scale_x()) as i32;
-            let draw_start_x = (-sprite_width as i32 / 2 + sprite_screen_x).max(0);
-            let draw_end_x = (sprite_width as i32 / 2 + sprite_screen_x).min(self.width as i32);
+            let draw_start_x = (-sprite_width / 2 + sprite_screen_x).max(0);
+            let draw_end_x = (sprite_width / 2 + sprite_screen_x).min(self.width as i32);
 
             // loop through every vertical stripe of the sprite on screen
             for stripe in draw_start_x..draw_end_x {
-                let tex_x = ((stripe as i32 - (-sprite_width as i32 / 2 + sprite_screen_x))
+                let tex_x = ((stripe - (-sprite_width / 2 + sprite_screen_x))
                     * sprite.width() as i32
-                    / sprite_width as i32)
+                    / sprite_width)
                     .max(0) as u32;
 
                 // the conditions in the if are:
@@ -330,8 +330,8 @@ impl Renderer {
                     && transform_y < self.z_buffer[stripe as usize]
                 {
                     for y in draw_start_y..draw_end_y {
-                        let d = ((y as i32) - pos_z_screen) - (self.height as i32 / 2)
-                            + (sprite_height as i32 / 2);
+                        let d = (y - pos_z_screen) - (self.height as i32 / 2)
+                            + (sprite_height / 2);
                         let tex_y = (d as f64 * sprite.height()) / sprite_height as f64;
 
                         let color = Color::from_rgba_arr(
