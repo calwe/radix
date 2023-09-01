@@ -60,6 +60,7 @@ impl Player {
         if input.key_held(VirtualKeyCode::W) {
             let x_diff = self.speed * self.dir.cos();
             let y_diff = self.speed * self.dir.sin();
+            // check if we will move into a wall
             if map
                 .get_wall((self.pos_x + x_diff) as u32, self.pos_y as u32)
                 .is_none()
@@ -76,6 +77,7 @@ impl Player {
         if input.key_held(VirtualKeyCode::S) {
             let x_diff = self.speed * self.dir.cos();
             let y_diff = self.speed * self.dir.sin();
+            // check if we will move into a wall
             if map
                 .get_wall((self.pos_x - x_diff) as u32, self.pos_y as u32)
                 .is_none()
@@ -92,6 +94,7 @@ impl Player {
         if input.key_held(VirtualKeyCode::A) {
             let x_diff = self.speed * self.dir.sin();
             let y_diff = self.speed * self.dir.cos();
+            // check if we will move into a wall
             if map
                 .get_wall((self.pos_x - x_diff) as u32, self.pos_y as u32)
                 .is_none()
@@ -108,6 +111,7 @@ impl Player {
         if input.key_held(VirtualKeyCode::D) {
             let x_diff = self.speed * self.dir.sin();
             let y_diff = self.speed * self.dir.cos();
+            // check if we will move into a wall
             if map
                 .get_wall((self.pos_x + x_diff) as u32, self.pos_y as u32)
                 .is_none()
@@ -122,10 +126,12 @@ impl Player {
             }
         }
 
+        // here is out custom mouse_diff. it just takes the mouse position and subtracts the center of the screen from it.
         let mouse_diff =
             input.mouse().unwrap_or((0.0, 0.0)).0 as f64 - self.window_width as f64 / 2.0;
         self.dir -= self.turn_speed * 0.1 * mouse_diff;
 
+        // the camera is always in the same position as our player
         self.camera.set_from_player(*self);
     }
 }

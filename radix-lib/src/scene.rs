@@ -23,6 +23,7 @@ impl Scene {
         }
     }
 
+    // TODO: scene saving and loading
     pub fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
         let serialized = serde_yaml::to_string(&self)?;
         // create save directory if it doesn't exist

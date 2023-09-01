@@ -46,6 +46,8 @@ impl App {
 
     /// The final function called after defining the app.
     pub fn run(mut self) {
+        // we must first create a window, and then pass it to the renderer.
+        // this uses the infomation provided from our own Window wrapper struct.
         let event_loop = EventLoop::new();
         let window = winit::window::WindowBuilder::new()
             .with_title(self.window.title().unwrap_or(&self.title))
@@ -76,6 +78,8 @@ impl App {
                 g.game.update();
 
                 // lock cursor - winit currently doesn't support this on windows, so we have to use a hacky workaround.
+                //               another side affect of this is that we cannot use input.mouse_diff, as our cursor constantly
+                //               gets reset to the center of the screen. the solution is shown in the player class.
                 let _ = g.window.set_cursor_position(LogicalPosition::new(
                     g.game.window.width() as f64 / 2.0,
                     g.game.window.height() as f64 / 2.0,
