@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use game_loop::game_loop;
 use log::info;
 use winit::{
@@ -21,7 +23,7 @@ pub struct App {
     renderer: Option<Renderer>,
     input: WinitInputHelper,
     script_engine: Option<Engine>,
-    scenes: Vec<Scene>,
+    scenes: Vec<Rc<RefCell<Scene>>>,
     current_scene: usize,
 }
 
@@ -68,6 +70,7 @@ impl App {
 
         // load the script engines globals, and call start
         if let Some(engine) = &mut self.script_engine {
+            engine.set_scene(self.scenes[self.current_scene].clone());
             engine.load_globals();
             engine.start();
         }
@@ -147,7 +150,7 @@ impl App {
 
     /// Adds a scene to the app
     pub fn add_scene(mut self, scene: Scene) -> Self {
-        self.scenes.push(scene);
+        self.scenes.push(Rc::new(RefCell::new(scene)));
         self
     }
 
@@ -156,18 +159,21 @@ impl App {
     // ---------------------------------------------------
     fn update(&mut self) {
         // self.camera.add_position(0.01, 0.01);
-        let current_scene = &mut self.scenes[self.current_scene];
+        let current_scene = &mut self.scenes[self.current_scene].borrow_mut();
         current_scene.update(&self.input);
     }
 
     fn render(&mut self) {
         let renderer = self.renderer.as_mut().unwrap();
-        let current_scene = &mut self.scenes[self.current_scene];
+        let current_scene = &mut self.scenes[self.current_scene].borrow();
 
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        renderer.draw_frame_textured_map(current_scene.player().camera(), current_scene.map());
+        renderer.draw_frame_textured_map(
+            current_scene.player().borrow().camera(),
+            current_scene.map(),
+        );
 
         renderer.render();
     }

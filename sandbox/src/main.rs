@@ -16,7 +16,7 @@ fn main() {
     App::new()
         .title("Sandbox")
         .window(window)
-        .add_scene(scene0)
         .script_path("assets/scripts/main.lua")
+        .add_scene(scene0)
         .run();
 }

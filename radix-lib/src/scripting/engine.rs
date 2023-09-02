@@ -1,4 +1,10 @@
-use crate::scripting::log::{debug, error, info, trace, warn};
+use std::{borrow::BorrowMut, cell::RefCell, rc::Rc};
+
+use crate::{
+    player::Player,
+    scene::Scene,
+    scripting::log::{debug, error, info, trace, warn},
+};
 use mlua::{Function, Lua};
 use winit_input_helper::WinitInputHelper;
 
@@ -7,6 +13,7 @@ use super::input::*;
 pub struct Engine {
     lua: Lua,
     script: String,
+    scene: Option<Rc<RefCell<Scene>>>,
 }
 
 impl Engine {
@@ -14,6 +21,7 @@ impl Engine {
         Self {
             lua: Lua::new(),
             script: String::new(),
+            scene: None,
         }
     }
 
@@ -64,11 +72,18 @@ impl Engine {
         input.set("MOUSE_MIDDLE", 2).unwrap();
 
         self.lua.globals().set("input", input).unwrap();
+
+        let scene = self.scene.as_ref().unwrap().borrow();
+        self.lua.globals().set("player", scene.player()).unwrap();
     }
 
     pub fn load_script(&mut self, path: &str) {
         self.script = std::fs::read_to_string(path).unwrap();
         self.lua.load(&self.script).exec().unwrap();
+    }
+
+    pub fn set_scene(&mut self, scene: Rc<RefCell<Scene>>) {
+        self.scene = Some(scene);
     }
 
     pub fn start(&self) {
