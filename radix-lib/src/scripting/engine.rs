@@ -2,7 +2,7 @@ use crate::scripting::log::{debug, error, info, trace, warn};
 use mlua::{Function, Lua};
 use winit_input_helper::WinitInputHelper;
 
-use super::input::{key_held, key_pressed, key_released};
+use super::input::*;
 
 pub struct Engine {
     lua: Lua,
@@ -35,13 +35,35 @@ impl Engine {
         let key_held = self.lua.create_function(key_held).unwrap();
         let key_pressed = self.lua.create_function(key_pressed).unwrap();
         let key_released = self.lua.create_function(key_released).unwrap();
+        let held_shift = self.lua.create_function(held_shift).unwrap();
+        let held_control = self.lua.create_function(held_control).unwrap();
+        let held_alt = self.lua.create_function(held_alt).unwrap();
+        let mouse = self.lua.create_function(mouse).unwrap();
+        let mouse_x = self.lua.create_function(mouse_x).unwrap();
+        let mouse_y = self.lua.create_function(mouse_y).unwrap();
+        let mouse_held = self.lua.create_function(mouse_held).unwrap();
+        let mouse_pressed = self.lua.create_function(mouse_pressed).unwrap();
+        let mouse_released = self.lua.create_function(mouse_released).unwrap();
 
-        self.lua.globals().set("key_held", key_held).unwrap();
-        self.lua.globals().set("key_pressed", key_pressed).unwrap();
-        self.lua
-            .globals()
-            .set("key_released", key_released)
-            .unwrap();
+        let input = self.lua.create_table().unwrap();
+        input.set("key_held", key_held).unwrap();
+        input.set("key_pressed", key_pressed).unwrap();
+        input.set("key_released", key_released).unwrap();
+        input.set("held_shift", held_shift).unwrap();
+        input.set("held_control", held_control).unwrap();
+        input.set("held_alt", held_alt).unwrap();
+        input.set("mouse", mouse).unwrap();
+        input.set("mouse_x", mouse_x).unwrap();
+        input.set("mouse_y", mouse_y).unwrap();
+        input.set("mouse_held", mouse_held).unwrap();
+        input.set("mouse_pressed", mouse_pressed).unwrap();
+        input.set("mouse_released", mouse_released).unwrap();
+
+        input.set("MOUSE_LEFT", 0).unwrap();
+        input.set("MOUSE_RIGHT", 1).unwrap();
+        input.set("MOUSE_MIDDLE", 2).unwrap();
+
+        self.lua.globals().set("input", input).unwrap();
     }
 
     pub fn load_script(&mut self, path: &str) {
