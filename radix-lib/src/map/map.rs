@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::ecs::entity::entity::Entity;
 
-use super::{sprite::Sprite, texture::Texture};
+use super::texture::Texture;
 
 pub struct Map {
     width: u32,

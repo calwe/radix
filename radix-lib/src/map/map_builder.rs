@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use serde::{Deserialize, Serialize};
 
-use super::{map::Map, sprite::Sprite, texture::Texture};
+use super::{map::Map, texture::Texture};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MapBuilder {
