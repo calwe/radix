@@ -7,7 +7,17 @@ use winit::{
 };
 use winit_input_helper::WinitInputHelper;
 
-use crate::{renderer::Renderer, scene::Scene, util::color::Color, window::Window};
+use crate::{
+    ecs::{
+        self,
+        component::{player_controller::PlayerController, transform::Transform},
+        entity::entity::Entity,
+    },
+    renderer::Renderer,
+    scene::Scene,
+    util::color::Color,
+    window::Window,
+};
 
 /// The base struct for the engine. Uses the 'Builder Pattern' to be constructed
 pub struct App {
@@ -20,6 +30,8 @@ pub struct App {
     input: WinitInputHelper,
     scenes: Vec<Scene>,
     current_scene: usize,
+    // test
+    scene: ecs::scene::Scene,
 }
 
 /// A rust trait that specifies the initial state of the app
@@ -34,6 +46,8 @@ impl Default for App {
             input: WinitInputHelper::new(),
             scenes: Vec::new(),
             current_scene: 0,
+            // test
+            scene: ecs::scene::Scene::new(),
         }
     }
 }
@@ -59,6 +73,17 @@ impl App {
             .build(&event_loop)
             .unwrap();
         self.renderer = Some(Renderer::new(&window, self.window.scale()));
+
+        // TEST
+        let mut e_player = Entity::new("Player");
+        e_player.add_component(Transform::new());
+        e_player.add_component(PlayerController::new(
+            0.1,
+            0.1,
+            e_player.get_component::<Transform>().unwrap().clone(),
+        ));
+
+        self.scene.add_entity(e_player);
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
@@ -154,6 +179,8 @@ impl App {
 
     fn handle_event(&mut self, event: &Event<()>) -> bool {
         if self.input.update(event) {
+            self.scene.update(&self.input);
+
             // Close events
             if self.input.key_pressed(VirtualKeyCode::Escape)
                 || self.input.close_requested()
