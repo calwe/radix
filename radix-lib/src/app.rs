@@ -10,11 +10,12 @@ use winit_input_helper::WinitInputHelper;
 use crate::{
     ecs::{
         self,
-        component::{player_controller::PlayerController, transform::Transform},
-        entity::entity::Entity,
+        component::{
+            self, camera::Camera, player_controller::PlayerController, transform::Transform,
+        },
+        scene::Scene,
     },
     renderer::Renderer,
-    scene::Scene,
     util::color::Color,
     window::Window,
 };
@@ -30,8 +31,6 @@ pub struct App {
     input: WinitInputHelper,
     scenes: Vec<Scene>,
     current_scene: usize,
-    // test
-    scene: ecs::scene::Scene,
 }
 
 /// A rust trait that specifies the initial state of the app
@@ -46,8 +45,6 @@ impl Default for App {
             input: WinitInputHelper::new(),
             scenes: Vec::new(),
             current_scene: 0,
-            // test
-            scene: ecs::scene::Scene::new(),
         }
     }
 }
@@ -73,17 +70,6 @@ impl App {
             .build(&event_loop)
             .unwrap();
         self.renderer = Some(Renderer::new(&window, self.window.scale()));
-
-        // TEST
-        let mut e_player = Entity::new("Player");
-        e_player.add_component(Transform::new());
-        e_player.add_component(PlayerController::new(
-            0.1,
-            0.1,
-            e_player.get_component::<Transform>().unwrap().clone(),
-        ));
-
-        self.scene.add_entity(e_player);
 
         // this is the core loop of the engine.
         //   - the second argument defines how many ticks per second the game should be updated at.
@@ -161,8 +147,6 @@ impl App {
     // ---------------------------------------------------
     fn update(&mut self) {
         // self.camera.add_position(0.01, 0.01);
-        let current_scene = &mut self.scenes[self.current_scene];
-        current_scene.update(&self.input);
     }
 
     fn render(&mut self) {
@@ -172,14 +156,23 @@ impl App {
         renderer.clear(Color::from_rgb_hex(0xe1a2ef));
 
         // DI
-        renderer.draw_frame_textured_map(current_scene.player().camera(), current_scene.map());
+        renderer.draw_frame_textured_map(
+            &current_scene
+                .get_entity("Player")
+                .unwrap()
+                .get_component::<Camera>()
+                .unwrap()
+                .borrow(),
+            &current_scene.map().borrow(),
+        );
 
         renderer.render();
     }
 
     fn handle_event(&mut self, event: &Event<()>) -> bool {
         if self.input.update(event) {
-            self.scene.update(&self.input);
+            let current_scene = &mut self.scenes[self.current_scene];
+            current_scene.update(&self.input);
 
             // Close events
             if self.input.key_pressed(VirtualKeyCode::Escape)

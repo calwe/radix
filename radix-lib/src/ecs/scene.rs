@@ -1,15 +1,21 @@
+use std::{cell::RefCell, rc::Rc};
+
 use log::warn;
 use winit_input_helper::WinitInputHelper;
+
+use crate::map::Map;
 
 use super::entity::entity::Entity;
 
 pub struct Scene {
+    map: Rc<RefCell<Map>>,
     entities: Vec<Entity>,
 }
 
 impl Scene {
-    pub fn new() -> Self {
+    pub fn new(map: Map) -> Self {
         Self {
+            map: Rc::new(RefCell::new(map)),
             entities: Vec::new(),
         }
     }
@@ -26,7 +32,17 @@ impl Scene {
         }
     }
 
-    pub fn get_entity(&mut self, tag: &str) -> Option<&mut Entity> {
+    pub fn get_entity(&self, tag: &str) -> Option<&Entity> {
+        for entity in &self.entities {
+            if entity.tag() == tag {
+                return Some(entity);
+            }
+        }
+
+        None
+    }
+
+    pub fn get_entity_mut(&mut self, tag: &str) -> Option<&mut Entity> {
         for entity in &mut self.entities {
             if entity.tag() == tag {
                 return Some(entity);
@@ -38,7 +54,7 @@ impl Scene {
 
     pub fn update(&mut self, input: &WinitInputHelper) {
         for entity in &mut self.entities {
-            entity.update(input);
+            entity.update(input, &self.map.borrow());
         }
     }
 
@@ -46,5 +62,9 @@ impl Scene {
         for entity in &mut self.entities {
             entity.start();
         }
+    }
+
+    pub fn map(&self) -> Rc<RefCell<Map>> {
+        self.map.clone()
     }
 }

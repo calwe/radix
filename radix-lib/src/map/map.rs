@@ -1,5 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
+use log::trace;
 use serde::{Deserialize, Serialize};
 
 use super::{sprite::Sprite, texture::Texture};

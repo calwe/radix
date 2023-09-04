@@ -1,8 +1,7 @@
-use serde::{Deserialize, Serialize};
+use std::{cell::RefCell, rc::Rc};
 
-use crate::player::Player;
+use super::{transform::Transform, Component, ComponentType};
 
-#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct Camera {
     pos_x: f64,
     pos_y: f64,
@@ -13,11 +12,19 @@ pub struct Camera {
     aspect_ratio: f64,
 }
 
+impl Component for Camera {}
+
+impl Into<ComponentType> for Camera {
+    fn into(self) -> ComponentType {
+        ComponentType::Camera(Rc::new(RefCell::new(self)))
+    }
+}
+
 impl Camera {
-    pub fn new(pos_x: f64, pos_y: f64, aspect_ratio: f64) -> Self {
+    pub fn new(aspect_ratio: f64) -> Self {
         Self {
-            pos_x,
-            pos_y,
+            pos_x: 0.0,
+            pos_y: 0.0,
             dir_x: -1.0,
             dir_y: 0.0,
             plane_x: 0.0,
@@ -54,12 +61,12 @@ impl Camera {
         self.aspect_ratio
     }
 
-    pub fn set_from_player(&mut self, player: Player) {
-        self.pos_x = player.pos_x();
-        self.pos_y = player.pos_y();
-        self.dir_x = player.dir().cos();
-        self.dir_y = player.dir().sin();
-        self.plane_x = player.dir().sin() * self.aspect_ratio() / 2.0;
-        self.plane_y = -player.dir().cos() * self.aspect_ratio() / 2.0;
+    pub fn set_from_transform(&mut self, transform: &Transform) {
+        self.pos_x = transform.pos_x();
+        self.pos_y = transform.pos_y();
+        self.dir_x = transform.dir().cos();
+        self.dir_y = transform.dir().sin();
+        self.plane_x = transform.dir().sin() * self.aspect_ratio() / 2.0;
+        self.plane_y = -transform.dir().cos() * self.aspect_ratio() / 2.0;
     }
 }

@@ -3,7 +3,10 @@ use std::{cell::RefCell, rc::Rc};
 use log::warn;
 use winit_input_helper::WinitInputHelper;
 
-use crate::ecs::component::{Component, ComponentType};
+use crate::{
+    ecs::component::{Component, ComponentType},
+    map::Map,
+};
 
 pub struct Entity {
     tag: String,
@@ -37,9 +40,9 @@ impl Entity {
             .find_map(|c| c.downcast_ref::<Rc<RefCell<T>>>())
     }
 
-    pub fn update(&mut self, input: &WinitInputHelper) {
+    pub fn update(&mut self, input: &WinitInputHelper, map: &Map) {
         for component in &mut self.components {
-            component.update(input);
+            component.update(input, map);
         }
     }
 

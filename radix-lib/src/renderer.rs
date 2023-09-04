@@ -1,9 +1,9 @@
-use std::rc::Rc;
+use std::{cell::RefCell, rc::Rc};
 
 use pixels::{Pixels, SurfaceTexture};
 
 use crate::{
-    camera::Camera,
+    ecs::component::camera::Camera,
     map::{texture::Texture, Map},
     util::color::Color,
 };
@@ -330,8 +330,7 @@ impl Renderer {
                     && transform_y < self.z_buffer[stripe as usize]
                 {
                     for y in draw_start_y..draw_end_y {
-                        let d = (y - pos_z_screen) - (self.height as i32 / 2)
-                            + (sprite_height / 2);
+                        let d = (y - pos_z_screen) - (self.height as i32 / 2) + (sprite_height / 2);
                         let tex_y = (d as f64 * sprite.height()) / sprite_height as f64;
 
                         let color = Color::from_rgba_arr(

@@ -3,16 +3,18 @@ use std::{cell::RefCell, rc::Rc};
 use log::trace;
 use winit_input_helper::WinitInputHelper;
 
+use crate::map::Map;
+
 use super::{Component, ComponentType};
 
 pub struct Transform {
-    pos_x: f32,
-    pos_y: f32,
-    dir: f32,
+    pos_x: f64,
+    pos_y: f64,
+    dir: f64,
 }
 
 impl Component for Transform {
-    fn update(&mut self, _input: &WinitInputHelper) {
+    fn update(&mut self, _input: &WinitInputHelper, _map: &Map) {
         trace!("pos_x: {}", self.pos_x);
     }
 }
@@ -24,35 +26,43 @@ impl Into<ComponentType> for Transform {
 }
 
 impl Transform {
-    pub fn new() -> Self {
-        Self {
-            pos_x: 0.0,
-            pos_y: 0.0,
-            dir: 0.0,
-        }
+    pub fn new(pos_x: f64, pos_y: f64, dir: f64) -> Self {
+        Self { pos_x, pos_y, dir }
     }
 
-    pub fn pos_x(&self) -> f32 {
+    pub fn pos_x(&self) -> f64 {
         self.pos_x
     }
 
-    pub fn pos_y(&self) -> f32 {
+    pub fn pos_y(&self) -> f64 {
         self.pos_y
     }
 
-    pub fn dir(&self) -> f32 {
+    pub fn dir(&self) -> f64 {
         self.dir
     }
 
-    pub fn set_pos_x(&mut self, pos_x: f32) {
+    pub fn set_pos_x(&mut self, pos_x: f64) {
         self.pos_x = pos_x;
     }
 
-    pub fn set_pos_y(&mut self, pos_y: f32) {
+    pub fn set_pos_y(&mut self, pos_y: f64) {
         self.pos_y = pos_y;
     }
 
-    pub fn set_dir(&mut self, dir: f32) {
+    pub fn set_dir(&mut self, dir: f64) {
         self.dir = dir;
+    }
+
+    pub fn add_pos_x(&mut self, pos_x: f64) {
+        self.pos_x += pos_x;
+    }
+
+    pub fn add_pos_y(&mut self, pos_y: f64) {
+        self.pos_y += pos_y;
+    }
+
+    pub fn add_dir(&mut self, dir: f64) {
+        self.dir += dir;
     }
 }
