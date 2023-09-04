@@ -3,6 +3,8 @@ use std::{cell::RefCell, rc::Rc};
 use log::trace;
 use serde::{Deserialize, Serialize};
 
+use crate::ecs::entity::entity::Entity;
+
 use super::{sprite::Sprite, texture::Texture};
 
 pub struct Map {
@@ -11,7 +13,6 @@ pub struct Map {
     walls: Vec<Option<Rc<Texture>>>,
     floor: Vec<Option<Rc<Texture>>>,
     ceiling: Vec<Option<Rc<Texture>>>,
-    sprites: Vec<Rc<RefCell<Sprite>>>,
 }
 
 // TODO: Write deserlaize and serialize for TexturedMap
@@ -40,7 +41,6 @@ impl Map {
         data: Vec<Option<Rc<Texture>>>,
         floor: Vec<Option<Rc<Texture>>>,
         ceiling: Vec<Option<Rc<Texture>>>,
-        sprites: Vec<Rc<RefCell<Sprite>>>,
     ) -> Self {
         Self {
             width,
@@ -48,7 +48,6 @@ impl Map {
             walls: data,
             floor,
             ceiling,
-            sprites,
         }
     }
 
@@ -69,9 +68,5 @@ impl Map {
 
     pub fn get_ceiling(&self, x: u32, y: u32) -> Option<Rc<Texture>> {
         self.ceiling[(y.min(self.height - 1) * self.width + x.min(self.width - 1)) as usize].clone()
-    }
-
-    pub fn sprites(&self) -> Vec<Rc<RefCell<Sprite>>> {
-        self.sprites.clone()
     }
 }

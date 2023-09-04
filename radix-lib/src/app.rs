@@ -163,7 +163,7 @@ impl App {
                 .get_component::<Camera>()
                 .unwrap()
                 .borrow(),
-            &current_scene.map().borrow(),
+            &current_scene,
         );
 
         renderer.render();

@@ -4,48 +4,63 @@ use winit_input_helper::WinitInputHelper;
 
 use crate::map::Map;
 
-use super::{camera::Camera, player_controller::PlayerController, transform::Transform};
+use paste::paste;
+
+use super::{
+    camera::Camera, player_controller::PlayerController, sprite::Sprite,
+    sprite_transform::SpriteTransform, transform::Transform,
+};
 
 pub trait Component: Into<ComponentType> {
     fn update(&mut self, _input: &WinitInputHelper, _map: &Map) {}
     fn start(&mut self) {}
 }
 
-pub enum ComponentType {
-    Transform(Rc<RefCell<Transform>>),
-    PlayerController(Rc<RefCell<PlayerController>>),
-    Camera(Rc<RefCell<Camera>>),
-}
+macro_rules! impl_component_types {
+    ( $( ($x:ident) ),* ) => {
+        pub enum ComponentType {
+            $(
+                $x(Rc<RefCell<$x>>),
+            )*
+        }
 
-impl Component for ComponentType {
-    // macro all this?
-    fn update(&mut self, input: &WinitInputHelper, map: &Map) {
-        match self {
-            ComponentType::Transform(transform) => transform.borrow_mut().update(input, map),
-            ComponentType::PlayerController(player_controller) => {
-                player_controller.borrow_mut().update(input, map)
+        paste! {
+            impl Component for ComponentType {
+                // macro all this?
+                fn update(&mut self, input: &WinitInputHelper, map: &Map) {
+                    match self {
+                        $(
+                            ComponentType::$x([<$x:lower>]) => [<$x:lower>].borrow_mut().update(input, map),
+                        )*
+                    }
+                }
+
+                fn start(&mut self) {
+                    match self {
+                        $(
+                            ComponentType::$x([<$x:lower>]) => [<$x:lower>].borrow_mut().start(),
+                        )*
+                    }
+                }
             }
-            ComponentType::Camera(camera) => camera.borrow_mut().update(input, map),
-        }
-    }
 
-    fn start(&mut self) {
-        match self {
-            ComponentType::Transform(transform) => transform.borrow_mut().start(),
-            ComponentType::PlayerController(player_controller) => {
-                player_controller.borrow_mut().start()
+            impl ComponentType {
+                pub fn to_any(&self) -> &dyn Any {
+                    match self {
+                        $(
+                            ComponentType::$x([<$x:lower>]) => [<$x:lower>],
+                        )*
+                    }
+                }
             }
-            ComponentType::Camera(camera) => camera.borrow_mut().start(),
         }
-    }
+    };
 }
 
-impl ComponentType {
-    pub fn to_any(&self) -> &dyn Any {
-        match self {
-            ComponentType::Transform(transform) => transform,
-            ComponentType::PlayerController(player_controller) => player_controller,
-            ComponentType::Camera(camera) => camera,
-        }
-    }
-}
+impl_component_types!(
+    (Transform),
+    (PlayerController),
+    (Camera),
+    (Sprite),
+    (SpriteTransform)
+);

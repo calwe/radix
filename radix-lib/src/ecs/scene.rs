@@ -5,7 +5,7 @@ use winit_input_helper::WinitInputHelper;
 
 use crate::map::Map;
 
-use super::entity::entity::Entity;
+use super::{component::Component, entity::entity::Entity};
 
 pub struct Scene {
     map: Rc<RefCell<Map>>,
@@ -50,6 +50,18 @@ impl Scene {
         }
 
         None
+    }
+
+    pub fn get_entities_with_component<T: Component + 'static>(&self) -> Vec<&Entity> {
+        let mut entities = Vec::new();
+
+        for entity in &self.entities {
+            if entity.has_component::<T>() {
+                entities.push(entity);
+            }
+        }
+
+        entities
     }
 
     pub fn update(&mut self, input: &WinitInputHelper) {

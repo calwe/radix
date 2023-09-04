@@ -1,11 +1,14 @@
 use radix_lib::{
     app::App,
     ecs::{
-        component::{camera::Camera, player_controller::PlayerController, transform::Transform},
+        component::{
+            camera::Camera, player_controller::PlayerController, sprite::Sprite,
+            sprite_transform::SpriteTransform, transform::Transform,
+        },
         entity::entity::Entity,
         scene::Scene,
     },
-    map::map_builder::MapBuilder,
+    map::{map_builder::MapBuilder, texture::Texture},
     window::Window,
 };
 
@@ -27,8 +30,13 @@ fn main() {
         player.get_component::<Camera>().unwrap().clone(),
     ));
 
+    let mut food = Entity::new("Food");
+    food.add_component(SpriteTransform::new(13.0, 3.0, 0.0, 1.0, 1.0));
+    food.add_component(Sprite::new(Texture::new("assets/sprites/cherries.png")));
+
     let mut scene0 = Scene::new(scene0_map);
     scene0.add_entity(player);
+    scene0.add_entity(food);
 
     App::new()
         .title("Sandbox")

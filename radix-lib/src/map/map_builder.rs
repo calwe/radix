@@ -12,7 +12,6 @@ pub struct MapBuilder {
     floor_texture_map: HashMap<u32, String>, // colour -> texture path
     ceiling_path: String,
     ceiling_texture_map: HashMap<u32, String>, // colour -> texture path
-    sprites: Vec<(f64, f64, f64, f64, f64, String)>, // x, y, z, scale_x, scale_y, texture path
 }
 
 impl MapBuilder {
@@ -40,20 +39,8 @@ impl MapBuilder {
         };
 
         // we can also add our sprites
-        let mut sprites = Vec::new();
-        for (x, y, z, scale_x, scale_y, path) in &self.sprites {
-            sprites.push(Rc::new(RefCell::new(Sprite::new(
-                *x,
-                *y,
-                *z,
-                *scale_x,
-                *scale_y,
-                Rc::new(Texture::new(path)),
-            ))));
-        }
-
         // finally we turn this into our TexturedMap
-        Map::with_data(width, height, walls, floor, ceiling, sprites)
+        Map::with_data(width, height, walls, floor, ceiling)
     }
 
     fn map_textures(

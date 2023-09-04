@@ -3,7 +3,10 @@ use std::{cell::RefCell, rc::Rc};
 use pixels::{Pixels, SurfaceTexture};
 
 use crate::{
-    ecs::component::camera::Camera,
+    ecs::{
+        component::{camera::Camera, sprite::Sprite, sprite_transform::SpriteTransform},
+        scene::Scene,
+    },
     map::{texture::Texture, Map},
     util::color::Color,
 };
@@ -74,10 +77,10 @@ impl Renderer {
         }
     }
 
-    pub fn draw_frame_textured_map(&mut self, camera: &Camera, map: &Map) {
-        self.draw_floor_and_ceiling(camera, map);
-        self.draw_walls(camera, map);
-        self.draw_sprites(camera, map);
+    pub fn draw_frame_textured_map(&mut self, camera: &Camera, scene: &Scene) {
+        self.draw_floor_and_ceiling(camera, &scene.map().borrow());
+        self.draw_walls(camera, &scene.map().borrow());
+        self.draw_sprites(camera, scene);
     }
 
     pub fn draw_floor_and_ceiling(&mut self, camera: &Camera, map: &Map) {
@@ -261,13 +264,15 @@ impl Renderer {
         }
     }
 
-    pub fn draw_sprites(&mut self, camera: &Camera, map: &Map) {
-        let mut sprites = map.sprites();
+    pub fn draw_sprites(&mut self, camera: &Camera, scene: &Scene) {
+        let mut sprites = scene.get_entities_with_component::<Sprite>();
         sprites.sort_by(|a, b| {
-            let a_x = a.borrow().pos_x();
-            let a_y = a.borrow().pos_y();
-            let b_x = b.borrow().pos_x();
-            let b_y = b.borrow().pos_y();
+            let a_t = a.get_component::<SpriteTransform>().unwrap();
+            let b_t = b.get_component::<SpriteTransform>().unwrap();
+            let a_x = a_t.borrow().pos_x();
+            let a_y = a_t.borrow().pos_y();
+            let b_x = b_t.borrow().pos_x();
+            let b_y = b_t.borrow().pos_y();
 
             let a_dist = (camera.pos_x() - a_x).powi(2) + (camera.pos_y() - a_y).powi(2);
             let b_dist = (camera.pos_x() - b_x).powi(2) + (camera.pos_y() - b_y).powi(2);
@@ -276,9 +281,10 @@ impl Renderer {
         });
 
         for sprite in sprites {
-            let sprite = sprite.borrow();
-            let sprite_x = sprite.pos_x() - camera.pos_x();
-            let sprite_y = sprite.pos_y() - camera.pos_y();
+            let sprite_transform = sprite.get_component::<SpriteTransform>().unwrap().borrow();
+            let sprite = sprite.get_component::<Sprite>().unwrap().borrow();
+            let sprite_x = sprite_transform.pos_x() - camera.pos_x();
+            let sprite_y = sprite_transform.pos_y() - camera.pos_y();
 
             // transform sprite with the inverse camera matrix
             let inv_det =
@@ -293,11 +299,12 @@ impl Renderer {
 
             // calculate height of the sprite on screen
             let sprite_height =
-                ((self.height as f64 / transform_y).abs() * sprite.scale_y()) as i32;
+                ((self.height as f64 / transform_y).abs() * sprite_transform.scale_y()) as i32;
 
             // TODO: this feels like it could be better. the sprite isnt perfectly on the floor
-            let pos_z = (sprite.pos_z()
-                * (self.height as f64 / 4.0 + (4.0 / sprite.scale_y().powi(2)) / self.scale as f64))
+            let pos_z = (sprite_transform.pos_z()
+                * (self.height as f64 / 4.0
+                    + (4.0 / sprite_transform.scale_y().powi(2)) / self.scale as f64))
                 as i32;
             let pos_z_screen = (pos_z as f64 / transform_y) as i32;
 
@@ -308,7 +315,8 @@ impl Renderer {
                 .min(self.height as i32);
 
             // calculate width of the sprite
-            let sprite_width = ((self.height as f64 / transform_y).abs() * sprite.scale_x()) as i32;
+            let sprite_width =
+                ((self.height as f64 / transform_y).abs() * sprite_transform.scale_x()) as i32;
             let draw_start_x = (-sprite_width / 2 + sprite_screen_x).max(0);
             let draw_end_x = (sprite_width / 2 + sprite_screen_x).min(self.width as i32);
 
@@ -334,7 +342,7 @@ impl Renderer {
                         let tex_y = (d as f64 * sprite.height()) / sprite_height as f64;
 
                         let color = Color::from_rgba_arr(
-                            sprite.texture().get(tex_x, tex_y.max(0.0) as u32),
+                            sprite.texture().borrow().get(tex_x, tex_y.max(0.0) as u32),
                         );
                         if color.to_hex() & 0xFF == 0xFF {
                             self.draw_pixel(color, stripe as u32, y as u32);

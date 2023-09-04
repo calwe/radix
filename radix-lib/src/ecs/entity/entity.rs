@@ -40,6 +40,10 @@ impl Entity {
             .find_map(|c| c.downcast_ref::<Rc<RefCell<T>>>())
     }
 
+    pub fn has_component<T: Component + 'static>(&self) -> bool {
+        self.get_component::<T>().is_some()
+    }
+
     pub fn update(&mut self, input: &WinitInputHelper, map: &Map) {
         for component in &mut self.components {
             component.update(input, map);
