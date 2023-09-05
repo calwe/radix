@@ -16,5 +16,5 @@ pretty_env_logger = "0.5.0"
 serde = { version = "1.0.186", features = [ "derive" ] }
 serde_yaml = "0.9.25"
 winit = "0.28.6"
-winit_input_helper = "0.14.1"
+winit_input_helper = { git = "https://github.com/TheButlah/winit_input_helper", branch = "update_pr_20" }
 paste = "1.0.14"

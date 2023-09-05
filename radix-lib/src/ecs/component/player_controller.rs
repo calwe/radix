@@ -92,7 +92,10 @@ impl Component for PlayerController {
 
             // here is out custom mouse_diff. it just takes the mouse position and subtracts the center of the screen from it.
             // TODO: the 1280 here should be replaced. THE INPUT SYSTEM SHOULD BE EXTRACTED
+            #[cfg(target_os = "windows")]
             let mouse_diff = input.mouse().unwrap_or((0.0, 0.0)).0 as f64 - 1280f64 / 2.0;
+            #[cfg(target_os = "linux")]
+            let mouse_diff = input.mouse_diff().0 as f64;
             transform.set_dir(dir - self.turn_speed * 0.1 * mouse_diff);
         }
         // the camera is always in the same position as our player

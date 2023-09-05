@@ -4,6 +4,7 @@ use winit::{
     dpi::{LogicalPosition, LogicalSize},
     event::{Event, VirtualKeyCode},
     event_loop::EventLoop,
+    window::CursorGrabMode,
 };
 use winit_input_helper::WinitInputHelper;
 
@@ -91,10 +92,13 @@ impl App {
                 // lock cursor - winit currently doesn't support this on windows, so we have to use a hacky workaround.
                 //               another side affect of this is that we cannot use input.mouse_diff, as our cursor constantly
                 //               gets reset to the center of the screen. the solution is shown in the player class.
+                #[cfg(target_os = "windows")]
                 let _ = g.window.set_cursor_position(LogicalPosition::new(
                     g.game.window.width() as f64 / 2.0,
                     g.game.window.height() as f64 / 2.0,
                 ));
+                #[cfg(target_os = "linux")]
+                let _ = g.window.set_cursor_grab(CursorGrabMode::Locked);
                 g.window.set_cursor_visible(false);
             },
             |g| {
