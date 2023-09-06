@@ -127,8 +127,11 @@ impl Player {
         }
 
         // here is out custom mouse_diff. it just takes the mouse position and subtracts the center of the screen from it.
+        #[cfg(target_os = "windows")]
         let mouse_diff =
             input.mouse().unwrap_or((0.0, 0.0)).0 as f64 - self.window_width as f64 / 2.0;
+        #[cfg(target_os = "linux")]
+        let mouse_diff = input.mouse_diff().0 as f64;
         self.dir -= self.turn_speed * 0.1 * mouse_diff;
 
         // the camera is always in the same position as our player
