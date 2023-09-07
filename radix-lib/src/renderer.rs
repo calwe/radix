@@ -61,28 +61,13 @@ impl Renderer {
         pixel.copy_from_slice(&color.to_rgba_arr());
     }
 
-    pub fn draw_centered_vertical_line(&mut self, color: Color, length: u32, xpos: u32) {
-        let start = (self.height as i32 / 2 - length as i32 / 2).max(0);
-        let end = (self.height as i32 / 2 + length as i32 / 2).min(self.height as i32);
-        self.draw_vertical_line(color, start as u32, end as u32, xpos);
-    }
-
-    pub fn draw_vertical_line(&mut self, color: Color, start: u32, end: u32, xpos: u32) {
-        let framebuffer = self.framebuffer.frame_mut();
-        for y in start..end {
-            let offset = (y * self.width + xpos) as usize;
-            let pixel = &mut framebuffer[offset * 4..offset * 4 + 4];
-            pixel.copy_from_slice(&color.to_rgba_arr());
-        }
-    }
-
     pub fn draw_frame_textured_map(&mut self, camera: &Camera, map: &Map) {
         self.draw_floor_and_ceiling(camera, map);
         self.draw_walls(camera, map);
         self.draw_sprites(camera, map);
     }
 
-    pub fn draw_floor_and_ceiling(&mut self, camera: &Camera, map: &Map) {
+    fn draw_floor_and_ceiling(&mut self, camera: &Camera, map: &Map) {
         for y in 0..self.height {
             // left ray
             let ray_dir_x0 = camera.dir_x() - camera.plane_x();
@@ -147,7 +132,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw_walls(&mut self, camera: &Camera, map: &Map) {
+    fn draw_walls(&mut self, camera: &Camera, map: &Map) {
         self.z_buffer.clear();
         // We draw the frame using a method based on DDA.
         // The method used is outlined at https://lodev.org/cgtutor/raycasting.html
@@ -263,7 +248,7 @@ impl Renderer {
         }
     }
 
-    pub fn draw_sprites(&mut self, camera: &Camera, map: &Map) {
+    fn draw_sprites(&mut self, camera: &Camera, map: &Map) {
         let mut sprites = map.sprites();
         sprites.sort_by(|a, b| {
             let a_x = a.borrow().pos_x();
