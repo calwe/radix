@@ -11,7 +11,7 @@ use crate::{
 use winit::window::Window as WinitWindow;
 
 pub struct Renderer {
-    pixels: Pixels,
+    framebuffer: Pixels,
     width: u32,
     height: u32,
     scale: u32,
@@ -34,7 +34,7 @@ impl Renderer {
         };
 
         Self {
-            pixels,
+            framebuffer: pixels,
             width: window.inner_size().width / scale,
             height: window.inner_size().height / scale,
             z_buffer: Vec::with_capacity((window.inner_size().width / scale) as usize),
@@ -44,18 +44,18 @@ impl Renderer {
     }
 
     pub fn render(&mut self) {
-        self.pixels.render().unwrap();
+        self.framebuffer.render().unwrap();
     }
 
     pub fn clear(&mut self, color: Color) {
-        let framebuffer = self.pixels.frame_mut();
+        let framebuffer = self.framebuffer.frame_mut();
         for pixel in framebuffer.chunks_exact_mut(4) {
             pixel.copy_from_slice(&color.to_rgba_arr());
         }
     }
 
     pub fn draw_pixel(&mut self, color: Color, x: u32, y: u32) {
-        let framebuffer = self.pixels.frame_mut();
+        let framebuffer = self.framebuffer.frame_mut();
         let offset = (y * self.width + x) as usize;
         let pixel = &mut framebuffer[offset * 4..offset * 4 + 4];
         pixel.copy_from_slice(&color.to_rgba_arr());
@@ -68,7 +68,7 @@ impl Renderer {
     }
 
     pub fn draw_vertical_line(&mut self, color: Color, start: u32, end: u32, xpos: u32) {
-        let framebuffer = self.pixels.frame_mut();
+        let framebuffer = self.framebuffer.frame_mut();
         for y in start..end {
             let offset = (y * self.width + xpos) as usize;
             let pixel = &mut framebuffer[offset * 4..offset * 4 + 4];
