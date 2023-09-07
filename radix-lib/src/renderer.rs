@@ -8,6 +8,8 @@ use crate::{
     util::color::Color,
 };
 
+use winit::window::Window as WinitWindow;
+
 pub struct Renderer {
     pixels: Pixels,
     width: u32,
@@ -18,7 +20,7 @@ pub struct Renderer {
 }
 
 impl Renderer {
-    pub fn new(window: &winit::window::Window, scale: u32) -> Self {
+    pub fn new(window: &WinitWindow, scale: u32) -> Self {
         let pixels = {
             let window_size = window.inner_size();
             let surface_texture =

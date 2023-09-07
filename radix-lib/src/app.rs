@@ -4,6 +4,7 @@ use winit::{
     dpi::LogicalSize,
     event::{Event, VirtualKeyCode},
     event_loop::EventLoop,
+    window::WindowBuilder,
 };
 use winit_input_helper::WinitInputHelper;
 
@@ -49,7 +50,7 @@ impl App {
         // we must first create a window, and then pass it to the renderer.
         // this uses the infomation provided from our own Window wrapper struct.
         let event_loop = EventLoop::new();
-        let window = winit::window::WindowBuilder::new()
+        let window = WindowBuilder::new()
             .with_title(self.window.title().unwrap_or(&self.title))
             .with_inner_size(LogicalSize::new(self.window.width(), self.window.height()))
             .with_min_inner_size(LogicalSize::new(
