@@ -61,7 +61,7 @@ impl Renderer {
         pixel.copy_from_slice(&color.to_rgba_arr());
     }
 
-    pub fn draw_frame_textured_map(&mut self, camera: &Camera, map: &Map) {
+    pub fn draw_frame(&mut self, camera: &Camera, map: &Map) {
         self.draw_floor_and_ceiling(camera, map);
         self.draw_walls(camera, map);
         self.draw_sprites(camera, map);
