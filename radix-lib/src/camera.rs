@@ -59,7 +59,7 @@ impl Camera {
         self.pos_y = player.pos_y();
         self.dir_x = player.dir().cos();
         self.dir_y = player.dir().sin();
-        self.plane_x = player.dir().sin() * self.aspect_ratio() / 2.0;
-        self.plane_y = -player.dir().cos() * self.aspect_ratio() / 2.0;
+        self.plane_x = player.dir().sin() * self.aspect_ratio / 2.0;
+        self.plane_y = -player.dir().cos() * self.aspect_ratio / 2.0;
     }
 }

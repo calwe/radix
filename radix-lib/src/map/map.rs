@@ -33,10 +33,10 @@ impl<'de> Deserialize<'de> for Map {
 }
 
 impl Map {
-    pub fn with_data(
+    pub fn new(
         width: u32,
         height: u32,
-        data: Vec<Option<Rc<Texture>>>,
+        walls: Vec<Option<Rc<Texture>>>,
         floor: Vec<Option<Rc<Texture>>>,
         ceiling: Vec<Option<Rc<Texture>>>,
         sprites: Vec<Rc<RefCell<Sprite>>>,
@@ -44,14 +44,14 @@ impl Map {
         Self {
             width,
             height,
-            walls: data,
+            walls,
             floor,
             ceiling,
             sprites,
         }
     }
 
-    pub fn set(&mut self, x: u32, y: u32, texture: Rc<Texture>) {
+    pub fn set_wall(&mut self, x: u32, y: u32, texture: Rc<Texture>) {
         self.walls[(y * self.width + x) as usize] = Some(texture);
     }
 

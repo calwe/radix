@@ -52,10 +52,6 @@ impl Player {
         self.turn_speed
     }
 
-    pub fn window_width(&self) -> u32 {
-        self.window_width
-    }
-
     pub fn update(&mut self, input: &WinitInputHelper, map: &Map) {
         if input.key_held(VirtualKeyCode::W) {
             let x_diff = self.speed * self.dir.cos();

@@ -53,7 +53,7 @@ impl MapBuilder {
         }
 
         // finally we turn this into our TexturedMap
-        Map::with_data(width, height, walls, floor, ceiling, sprites)
+        Map::new(width, height, walls, floor, ceiling, sprites)
     }
 
     fn map_textures(
